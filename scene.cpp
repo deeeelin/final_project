@@ -26,8 +26,7 @@ void menu_destroy(){
 
 // function of game_scene
 void game_scene_init(){
-    character_init();
-    bullet_init();
+    all_object_init();
     background = al_load_bitmap("./image/stage.jpg");
     background2 = al_load_bitmap("./image/stage2.png");
     lose = al_load_bitmap("./image/lose.jpg");

@@ -40,14 +40,17 @@ Character chara={0},ene[5]={0};
 bullet bu[11]={0};
 
 ALLEGRO_SAMPLE *sample = NULL;
-
 // init main character and enemies
-void character_init(){
+
+void font_init(){
+     // load font 
+    font1 = al_load_ttf_font("./font/pirulen.ttf",25,0);
+    return ;
+}
+
+void chara_init(){
 
     char temp[50];
-
-    // load font 
-    font1 = al_load_ttf_font("./font/pirulen.ttf",25,0);
 
     // load character images
     for(int i = 1 ; i <=2 ; i++){
@@ -57,12 +60,6 @@ void character_init(){
     for(int i=1;i<=2;i++){
         sprintf( temp, "./image/char_atk%d.png", i );
         chara.img_atk[i-1] = al_load_bitmap(temp);
-    }
-
-    // load enemy images
-    for(int i=1;i<=4;i++){
-        sprintf( temp, "./image/ene%d_move.png",i);
-        ene[i].img_move[0] = al_load_bitmap(temp);
     }
 
     // initial the geometric information of character
@@ -77,6 +74,19 @@ void character_init(){
     chara.anime = 0;
     chara.anime_time = 30;
     
+    
+    return ;
+}
+
+void ene_init(){
+
+    char temp[50];
+
+    // load enemy images
+    for(int i=1;i<=4;i++){
+        sprintf( temp, "./image/ene%d_move.png",i);
+        ene[i].img_move[0] = al_load_bitmap(temp);
+    }
     // init enemy picture size
     for(int i=1;i<=4;i++){
         ene[i].width = al_get_bitmap_width(ene[i].img_move[0]);
@@ -99,8 +109,12 @@ void character_init(){
     ene[4].x = WIDTH-150;
     ene[4].y = HEIGHT+20;
     ene[4].active=0;
+    
+    return ;
+    
+}
 
-
+void sound_init(){
     // load effective sound
     sample = al_load_sample("./sound/atk_sound.wav");
     chara.atk_Sound  = al_create_sample_instance(sample);
@@ -109,7 +123,6 @@ void character_init(){
 
     return ;
 }
-
 // initialize main character's bullets and enemy bullets
 void bullet_init(){
     
@@ -140,6 +153,15 @@ void bullet_init(){
 
     return ;
 
+}
+
+void all_object_init(){
+    font_init();
+    chara_init();
+    ene_init();
+    sound_init();
+    bullet_init();
+    return ;
 }
 
 void charater_process(ALLEGRO_EVENT event){
@@ -219,7 +241,7 @@ void ene_active(int next){
     return ;
 }
 
-void things_moving(){
+void object_moving(){
 
      // chara bullets that is active will keep flying 
     for(int i=1;i<=9;i++){
@@ -311,7 +333,7 @@ void charater_update()
     if(sc>5&&next==0){next++;ene_active(next);}//sc is the score，sc>5 will have two more enemies
     
     // update the movement of things (except the main character)
-    things_moving();
+    object_moving();
     
     // interpreting what we should do if a keys is press 
     interpreting_keys();
@@ -413,3 +435,4 @@ void character_destory(){ // destroy created objects
     al_destroy_sample_instance(chara.atk_Sound);
 
 }
+

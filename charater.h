@@ -1,7 +1,6 @@
 #include "global.h"
 
-void character_init();
-void bullet_init();
+void all_object_init();
 void charater_process(ALLEGRO_EVENT event);
 void charater_update();
 void character_draw();

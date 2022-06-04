@@ -12,6 +12,7 @@ typedef struct character
     ALLEGRO_SAMPLE_INSTANCE *atk_Sound;
     int anime; // counting the time of animation
     int anime_time; // indicate how long the animation
+    int active;
 }Character;
 
 typedef struct Bullet
@@ -21,58 +22,46 @@ typedef struct Bullet
     bool dir; // left: false, right: true
     int state; // the state of character
     ALLEGRO_BITMAP *img_b[2];
+    int active;
 }bullet;
+
 
 ALLEGRO_FONT *font1 = NULL;
 
-int bulletready=0,fly=0,num_of_enemy=4,next=0,ti_me=0,mt=10,count_time,num_of_background=0;
+int num_of_enemy=4,next=0,ti_me=0,mt=10,count_time,num_of_background=0;
 //mt是道具持續時間,bulletready判斷主角子彈有沒有飛,fly判斷炸彈有沒有在飛
 // the state of character
 enum {STOP = 0, MOVE, ATK};
 
-Character chara,ene1,ene2,ene3,ene4;
+Character chara={0},ene[5]={0};
 
-Character ene[5];
+//子彈(bu1是主角射出的子彈，bu1-9，b10是攻擊主角的炸藥
 
+bullet bu[11]={0};
 
-
-bullet bu1,bu2,bu3,bu4;//子彈(bu1是主角射出的子彈，bu2是攻擊主角的炸藥，bu3，bu4是只有宣告，還沒開始寫的道具)
-
-bullet bu[5];
 ALLEGRO_SAMPLE *sample = NULL;
 
 
 void character_init(){
-    font1 = al_load_ttf_font("./font/pirulen.ttf",25,0);
-    // load character images
 
-    for(int i = 1 ; i <= 2 ; i++){
-        char temp[50];
+    char temp[50];
+
+    // load font 
+    font1 = al_load_ttf_font("./font/pirulen.ttf",25,0);
+
+    // load character images
+    for(int i = 1 ; i <=2 ; i++){
         sprintf( temp, "./image/char_move%d.png", i );
         chara.img_move[i-1] = al_load_bitmap(temp);
     }
-    for(int i = 1 ; i <= 2 ; i++){
-        char temp[50];
+    for(int i=1;i<=2;i++){
         sprintf( temp, "./image/char_atk%d.png", i );
         chara.img_atk[i-1] = al_load_bitmap(temp);
     }
-    if(num_of_enemy>0){
-
-        char temp[50];
-        sprintf( temp, "./image/ene1_move.png");
-        ene[1].img_move[0] = al_load_bitmap(temp);
-
-        sprintf( temp, "./image/ene2_move.png");
-        ene[2].img_move[0] = al_load_bitmap(temp);
-
-        num_of_enemy-=2;
+    for(int i=1;i<=4;i++){
+        sprintf( temp, "./image/ene%d_move.png",i);
+        ene[i].img_move[0] = al_load_bitmap(temp);
     }
-
-    // load effective sound
-    sample = al_load_sample("./sound/atk_sound.wav");
-    chara.atk_Sound  = al_create_sample_instance(sample);
-    al_set_sample_instance_playmode(chara.atk_Sound, ALLEGRO_PLAYMODE_ONCE);
-    al_attach_sample_instance_to_mixer(chara.atk_Sound, al_get_default_mixer());
 
     // initial the geometric information of character
     chara.width = al_get_bitmap_width(chara.img_move[0]);
@@ -86,73 +75,68 @@ void character_init(){
     chara.anime = 0;
     chara.anime_time = 30;
     
-    // init enemy 1
-    ene[1].width = al_get_bitmap_width(ene[1].img_move[0]);
-    ene[1].height = al_get_bitmap_height(ene[1].img_move[0]);
-    ene[1].x = 0;
-    ene[1].y = HEIGHT/2;
+    // init enemy picture size
+    for(int i=1;i<=4;i++){
+        ene[i].width = al_get_bitmap_width(ene[i].img_move[0]);
+        ene[i].height = al_get_bitmap_height(ene[i].img_move[0]);
+    }
 
-    // init enemy 2
-    ene[2].width = al_get_bitmap_width(ene[2].img_move[0]);
-    ene[2].height = al_get_bitmap_height(ene[2].img_move[0]);
+    // init enemy position
+    ene[1].x = 10;
+    ene[1].y = HEIGHT/2;
+    ene[1].active=1;
+
     ene[2].x = WIDTH-140;
     ene[2].y = HEIGHT;
+    ene[2].active=1;
 
-
-}
-void character_init_next()//下一個場景時多加兩隻怪獸
-{
-    if(num_of_enemy>0){
-        char temp[50];
-        sprintf( temp, "./image/ene3.png");
-        ene[3].img_move[0] = al_load_bitmap(temp);
-        num_of_enemy--;
-    }
-    if(num_of_enemy>0){
-        char temp[50];
-        sprintf( temp, "./image/ene4.png");
-        ene[4].img_move[0] = al_load_bitmap(temp);
-        num_of_enemy--;
-    }
-    ene[3].width = al_get_bitmap_width(ene[3].img_move[0]);
-    ene[3].height = al_get_bitmap_height(ene[3].img_move[0]);
     ene[3].x = 0;
     ene[3].y = HEIGHT/2;
+    ene[3].active=0;
 
-    ene[4].width = al_get_bitmap_width(ene[4].img_move[0]);
-    ene[4].height = al_get_bitmap_height(ene[4].img_move[0]);
     ene[4].x = WIDTH-150;
     ene[4].y = HEIGHT/2;
+    ene[4].active=0;
+
+
+    // load effective sound
+    sample = al_load_sample("./sound/atk_sound.wav");
+    chara.atk_Sound  = al_create_sample_instance(sample);
+    al_set_sample_instance_playmode(chara.atk_Sound, ALLEGRO_PLAYMODE_ONCE);
+    al_attach_sample_instance_to_mixer(chara.atk_Sound, al_get_default_mixer());
+
+    return ;
 }
-
-
 
 void bullet_init(){
-    // load character images
+    
     char temp[50];
-    sprintf( temp, "./image/bu1.png");
-    bu[1].img_b[0] = al_load_bitmap(temp);
-    bu[1].width = al_get_bitmap_width(bu[1].img_b[0]);
-    bu[1].height = al_get_bitmap_height(bu[1].img_b[0]);
-    bu[1].x = chara.x;
-    bu[1].y=chara.y+30;
-    bu[1].dir = chara.dir;
 
-}
-void enemyatk_init()
-{
-    char temp[50];
-    sprintf( temp, "./image/bu2.png");
-    bu[2].img_b[0] = al_load_bitmap(temp);
-    // initial the geometric information of character
-    bu[2].width = al_get_bitmap_width(bu[2].img_b[0]);
-    bu[2].height = al_get_bitmap_height(bu[2].img_b[0]);
-    if(chara.dir)
-        bu[2].x =WIDTH-1 ;
-    else
-        bu[2].x = 0+1;
-    bu[2].y=chara.y+30;
-    bu[2].dir = chara.dir;
+    // set chara bullet picture size
+    for(int i=1;i<=9;i++){
+        sprintf( temp, "./image/bu%d.png",1);
+        bu[i].img_b[0] = al_load_bitmap(temp);
+        bu[i].width = al_get_bitmap_width(bu[i].img_b[0]);
+        bu[i].height = al_get_bitmap_height(bu[i].img_b[0]);
+        bu[i].x = chara.x;
+        bu[i].y=chara.y;
+        bu[i].dir = chara.dir;
+        bu[i].active=0;
+    }
+   
+
+    for(int i=10;i<=10;i++){
+        sprintf( temp, "./image/bu%d.png",2);
+        bu[i].img_b[0] = al_load_bitmap(temp);
+        if(chara.dir) bu[i].x =WIDTH-1 ;
+        else bu[i].x = 0+1;
+        bu[i].y=chara.y+30;
+        bu[i].dir = chara.dir;
+        bu[i].active=0;
+    }
+
+    return ;
+
 }
 
 void charater_process(ALLEGRO_EVENT event){
@@ -169,72 +153,93 @@ void charater_process(ALLEGRO_EVENT event){
     }else if( event.type == ALLEGRO_EVENT_KEY_UP ){
         key_state[event.keyboard.keycode] = false;
     }
+    return ;
 }
 
-int shot_ene(bullet n,character m)//判斷敵人有沒有被子彈碰到
+void shot_ene()//判斷敵人有沒有被子彈碰到
 {
-    if(abs(n.x-m.x)<40 && abs(n.y-m.y)<70&& bulletready==1)
-    {
-        bulletready=0;//現在子彈已經射傷敵人了，這樣分數只會加一分
-        return 1; //&& m.y < n.y
+    for(int i=1;i<=4;i++){
+        for(int j=1;j<=9;j++){
+            if(abs( bu[j].x-ene[i].x)<40 && abs(bu[j].y-ene[i].y)<70 && bu[j].active==1)
+            {
+            ene[i].active=0;
+            bu[j].active=0; // bullet hide
+            bu[j].x=chara.x; // bullet back to chara
+            bu[j].y=chara.y+30;
+            bu[j].dir = chara.dir;
+            sc++; ;//現在子彈已經射傷敵人了，這樣分數只會加一分
+            return; 
+            }
+        }
+
     }
-    return 0; //for gcc compiler 
+    return;  //for gcc compiler 
 }
-int been_shot(bullet n,character m)//判斷主角有沒有被子彈碰到
+
+void been_shot()//判斷主角有沒有被子彈碰到
 {
-    if(abs(n.x-m.x)<50&&abs(n.y-m.y)<70&&fly==1)
-    {
-        fly=0;//現在子彈已經射傷主角了，這樣hp只會扣一分
-        return 1;
+    for(int i=10;i<=10;i++){
+        if(abs(bu[i].x-chara.x)<50&&abs(bu[i].y-chara.y)<70&& bu[i].active==1)
+        {
+            bu[i].active=0; // bullet hide
+            hp--; //現在子彈已經射傷主角了，這樣hp只會扣一分
+            return;
+        }
     }
+    return ;
+}
+
+void bullet_active(){ // show new bullet 
+    int i=1;
+    while(bu[i].active==1 && i<9){
+        i++;
+    }
+    bu[i].active=1;
+    return ;
+}
+
+void ene_active(int next){
+    if(next==1){
+        for(int i=3;i<=4;i++){
+            ene[i].active=1;
+        }
+    }
+    return ;
+}
+
+void things_moving(){
+     // chara bullets that is active will keep flying 
+    for(int i=1;i<=9;i++){
+
+        if(bu[i].x>30&&bu[i].x<WIDTH && bu[i].active==1){
+            if(bu[i].dir) bu[i].x+=40;
+            else bu[i].x-=40;
+        }
+        else if( (bu[i].x<30 || bu[i].x>WIDTH) && bu[i].active==1){
+            bu[i].active=0; // bullet out of screen ,so hide
+            bu[i].x=chara.x; // bullet back to chara 
+            bu[i].y=chara.y;
+            bu[i].dir = chara.dir;
+        }
+    }
+
+    // enemy bullets keep flying 
+    if(bu[10].x>0&&bu[10].x<(WIDTH/2)&&!(bu[10].dir && bu[10].active==1)) bu[10].x+=3;
     
-    return 0;
+    else if(bu[10].x>(WIDTH/2-50)&&bu[10].x<WIDTH&&(bu[10].dir && bu[10].active==1)) bu[10].x-=3;
+    
+
+    // active slow and fast enemy go back and forth
+    for(int i=1;i<=4;i++){
+        if(ene[i].y<-20)
+            ene[i].y=HEIGHT;//讓角色回來畫面裡
+        else
+            ene[i].y-=3;
+    }
+    return ;
+    
 }
-void moving(){
-    if(bu[1].x>30&&bu[1].x<WIDTH)
-    {
-        if(bu[1].dir)
-            bu[1].x+=40;
-        else
-            bu[1].x-=40;
-    }
-    else
-        bulletready=0;//子彈沒在飛
-    if(bu[2].x>0&&bu[2].x<(WIDTH/2)&&!(bu[2].dir))
-    {
-        bu[2].x+=3;
-    }
-    else if(bu[2].x>(WIDTH/2-50)&&bu[2].x<WIDTH&&(bu[2].dir))
-    {
-        bu[2].x-=3;
-    }
-    else
-        fly=0;//炸彈沒在飛
 
-    if(ene1.y<-20)
-        ene[1].y=HEIGHT;//讓角色回來畫面裡
-    else
-        ene[1].y-=3;
-
-    if(ene[2].y<-20)
-        ene[2].y=HEIGHT;//讓角色回來畫面裡
-    else
-        ene[2].y-=3;
-    if(sc>5)
-    {
-        if(ene[3].y<20)
-            ene[3].y=HEIGHT;//讓角色回來畫面裡
-        else
-            ene[3].y-=8;
-
-        if(ene[4].y>900)
-            ene[4].y=0;//讓角色回來畫面裡
-        else
-            ene[4].y+=8;
-    }
-
-
-}
 void interpreting_keys(){
     if( key_state[ALLEGRO_KEY_W] ){
         chara.y -= 5;
@@ -250,18 +255,23 @@ void interpreting_keys(){
         chara.dir = true;
         //chara.x += 5;
         chara.state = MOVE;
-    }else if( key_state[ALLEGRO_KEY_SPACE] ){
+    }else if( key_state[ALLEGRO_KEY_SPACE] ){   
         chara.state = ATK;
-        bullet_init();
-        bulletready=1;
-        if(fly==0){
-            enemyatk_init();
-            fly=1;
+        bullet_active();
+        key_state[ALLEGRO_KEY_SPACE]=false;
+    }
+    // bullet that is hidden ,goes with character
+    for(int i=1;i<=9;i++){
+        if(bu[i].active==0){
+            bu[i].x=chara.x;
+            bu[i].y=chara.y;
         }
     }
     return ;
 }
-void charater_update(){
+
+void charater_update()
+{
     // use the idea of finite state machine to deal with different state
     if(num_of_background==1)
     {
@@ -269,57 +279,40 @@ void charater_update(){
     }
     
     // charater been shot
-    if(been_shot(bu[2],chara)) hp--;
+    been_shot();
 
-    // shot enemy
-    if(shot_ene(bu[1],ene[1])==1||shot_ene(bu[1],ene[2])==1||shot_ene(bu[1],ene[3])==1||shot_ene(bu[1],ene[4])==1)
-    {
-        sc=sc+1;
-        bulletready=0;
-
-        
-    }
-    
-    if((sc%5)==0&&sc>0)hp=3;//當sc=5會切換場景，自動回血使主角hp=3
-
+    //shot enemy
+    shot_ene();
      // upgrade scene and difficulty
-    if(sc>5&&next==0) {next=1,character_init_next();}//sc指的是分數，sc>5時會跑出另外兩個敵人。
-    
 
-    // character movements setting
-    moving();
+    if((sc%5)==0&&sc>0)hp=3;//當sc=5會切換場景，自動回血使主角hp=3
+    if(sc>5&&next==0){next++; ene_active(next);}//sc指的是分數，sc>5時會跑出另外兩個敵人。
+    
+    // update the movement of things 
+    things_moving();
     
     // interpreting what we should do if a keys is press 
     interpreting_keys();
     
     // about main charater's anime settings 
-    if( chara.anime == chara.anime_time-1 )
-    {
+    if( chara.anime == chara.anime_time-1 ){
         chara.anime = 0;
         chara.state = STOP;
     }
-    if ( chara.anime == 0 )
-    {
+    if ( chara.anime == 0 ){
         chara.state = STOP;
     }
-}
-void character_draw_next(){
-    for(int i=3;i<=4;i++) {
-        if(shot_ene(bu[1],ene[i])!=1){
-
-            al_draw_bitmap(ene[i].img_move[0], ene[i].x, ene[i].y, 0);
-        }
-    }
+    return;
     
 }
-void character_draw(){
 
-    count_time++;
-    ti_me=count_time/10;
+void character_draw(){ //checked
+    
+
+    count_time++; 
+    ti_me=count_time/10; 
 
     if(mt>0) mt-=1;
-
-    if(sc>5)character_draw_next();
 
     al_draw_textf(font1,al_map_rgb_f(1,1,1),1, 1,0,"score: %d",sc);
     al_draw_textf(font1,al_map_rgb_f(1,1,1),750, 1,0,"hp: %d",hp);
@@ -327,31 +320,23 @@ void character_draw(){
     al_draw_textf(font1,al_map_rgb_f(1,1,1),650, 475,0,"game props:%d",mt);//計算道具剩餘時間
     //void al_draw_textf(const ALLEGRO_FONT *font, ALLEGRO_COLOR color,float x, float y, int flags,const char *format, ...)
     
-    
-    for(int i=1;i<=2;i++){
-        if(shot_ene(bu[1],ene[i])!=1){
+    // draw enemy if active 
+    for(int i=1;i<=4;i++){
+        if(ene[i].active==1){
             al_draw_bitmap(ene[i].img_move[0], ene[i].x, ene[i].y, 0);
-        }
+        }     
     } 
     
-   
-    if(bu[1].x>25&&bu[1].x<960)
-    {
-        if(bu[1].dir)
-            al_draw_bitmap(bu[1].img_b[0], bu[1].x, bu[1].y, 0);
-        else
-            al_draw_bitmap(bu[1].img_b[0], bu[1].x, bu[1].y, ALLEGRO_FLIP_HORIZONTAL);
-    }
-    if(bu[2].x>0&&bu[2].x<(WIDTH/2-20)&&!(bu[2].dir))
-    {
-            al_draw_bitmap(bu[2].img_b[0], bu[2].x, bu[2].y, 0);
+    // draw bullets if active
+    for(int i=1;i<=10;i++){
+        if(bu[i].active==1){
+            if(bu[i].dir) al_draw_bitmap(bu[i].img_b[0], bu[i].x, bu[i].y, 0);
 
-    }
-    else if(bu[2].x>(WIDTH/2-50)&&bu[2].x<WIDTH&&(bu[2].dir))
-    {
-            al_draw_bitmap(bu[2].img_b[0], bu[2].x, bu[2].y, ALLEGRO_FLIP_HORIZONTAL);
-    }
+            else al_draw_bitmap(bu[i].img_b[0], bu[i].x, bu[i].y, ALLEGRO_FLIP_HORIZONTAL);
 
+        }
+    }
+    
     // with the state, draw corresponding image
     if( chara.state == STOP ){
         if( chara.dir )
@@ -391,7 +376,8 @@ void character_draw(){
 
     }
 }
-void character_destory(){
+
+void character_destory(){ // checked 
 
     for(int i=0;i<=1;i++){
         al_destroy_bitmap(chara.img_atk[i]);
@@ -399,7 +385,7 @@ void character_destory(){
     }
     for(int i=1;i<=4;i++) al_destroy_bitmap(ene[i].img_move[0]);
 
-    for(int i=1;i<=2;i++) al_destroy_bitmap(bu[i].img_b[0]);
+    for(int i=1;i<=10;i++) al_destroy_bitmap(bu[i].img_b[0]);
 
     al_destroy_sample_instance(chara.atk_Sound);
 

@@ -10,3 +10,8 @@ bool key_state[ALLEGRO_KEY_MAX] = {false};
 bool judge_next_window = false;
 int sc=0;
 int hp=3;
+
+
+
+
+

@@ -44,7 +44,7 @@ void game_scene_draw(){
     else if(sc<5)
     {
         al_draw_bitmap(background, 0, 0, 0);
-         character_draw();
+        character_draw();
 
     }
     else

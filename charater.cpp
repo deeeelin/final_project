@@ -91,11 +91,11 @@ void character_init(){
     ene[2].active=1;
 
     ene[3].x = 0;
-    ene[3].y = HEIGHT/2;
+    ene[3].y = 0-20;
     ene[3].active=0;
 
     ene[4].x = WIDTH-150;
-    ene[4].y = HEIGHT/2;
+    ene[4].y = HEIGHT+20;
     ene[4].active=0;
 
 
@@ -119,7 +119,7 @@ void bullet_init(){
         bu[i].width = al_get_bitmap_width(bu[i].img_b[0]);
         bu[i].height = al_get_bitmap_height(bu[i].img_b[0]);
         bu[i].x = chara.x;
-        bu[i].y=chara.y;
+        bu[i].y=chara.y+30;
         bu[i].dir = chara.dir;
         bu[i].active=0;
     }
@@ -160,15 +160,15 @@ void shot_ene()//判斷敵人有沒有被子彈碰到
 {
     for(int i=1;i<=4;i++){
         for(int j=1;j<=9;j++){
-            if(abs( bu[j].x-ene[i].x)<40 && abs(bu[j].y-ene[i].y)<70 && bu[j].active==1)
+            if(abs( bu[j].x-ene[i].x)<40 && abs(bu[j].y-ene[i].y)<70 && bu[j].active==1 && ene[i].active==1)
             {
-            ene[i].active=0;
-            bu[j].active=0; // bullet hide
-            bu[j].x=chara.x; // bullet back to chara
-            bu[j].y=chara.y+30;
-            bu[j].dir = chara.dir;
-            sc++; ;//現在子彈已經射傷敵人了，這樣分數只會加一分
-            return; 
+                ene[i].active=0;
+                bu[j].active=0; // bullet hide
+                bu[j].x=chara.x; // bullet back to chara
+                bu[j].y=chara.y+30;
+                bu[j].dir = chara.dir;
+                sc++; ;//現在子彈已經射傷敵人了，這樣分數只會加一分
+                return; 
             }
         }
 
@@ -200,7 +200,7 @@ void bullet_active(){ // show new bullet
 
 void ene_active(int next){
     if(next==1){
-        for(int i=3;i<=4;i++){
+        for(int i=1;i<=4;i++){
             ene[i].active=1;
         }
     }
@@ -231,8 +231,9 @@ void things_moving(){
 
     // active slow and fast enemy go back and forth
     for(int i=1;i<=4;i++){
-        if(ene[i].y<-20)
+        if(ene[i].y< -20)
             ene[i].y=HEIGHT;//讓角色回來畫面裡
+        else if(ene[i].y>HEIGHT) ene[i].y=-20;
         else
             ene[i].y-=3;
     }
@@ -258,13 +259,15 @@ void interpreting_keys(){
     }else if( key_state[ALLEGRO_KEY_SPACE] ){   
         chara.state = ATK;
         bullet_active();
+        al_play_sample_instance(chara.atk_Sound);
         key_state[ALLEGRO_KEY_SPACE]=false;
     }
     // bullet that is hidden ,goes with character
     for(int i=1;i<=9;i++){
         if(bu[i].active==0){
             bu[i].x=chara.x;
-            bu[i].y=chara.y;
+            bu[i].y=chara.y+30;
+            bu[i].dir=chara.dir;
         }
     }
     return ;
@@ -286,7 +289,7 @@ void charater_update()
      // upgrade scene and difficulty
 
     if((sc%5)==0&&sc>0)hp=3;//當sc=5會切換場景，自動回血使主角hp=3
-    if(sc>5&&next==0){next++; ene_active(next);}//sc指的是分數，sc>5時會跑出另外兩個敵人。
+    if(sc>5&&next==0){next++;ene_active(next);}//sc指的是分數，sc>5時會跑出另外兩個敵人。
     
     // update the movement of things 
     things_moving();
@@ -322,6 +325,7 @@ void character_draw(){ //checked
     
     // draw enemy if active 
     for(int i=1;i<=4;i++){
+        //printf("%d",ene[2].active);
         if(ene[i].active==1){
             al_draw_bitmap(ene[i].img_move[0], ene[i].x, ene[i].y, 0);
         }     
@@ -363,14 +367,14 @@ void character_draw(){ //checked
                 al_draw_bitmap(chara.img_atk[0], chara.x, chara.y, 0);
             }else{
                 al_draw_bitmap(chara.img_atk[1], chara.x, chara.y, 0);
-                al_play_sample_instance(chara.atk_Sound);
+               
             }
         }else{
             if( chara.anime < chara.anime_time/2 ){
                 al_draw_bitmap(chara.img_atk[0], chara.x, chara.y,  ALLEGRO_FLIP_HORIZONTAL);
             }else{
                 al_draw_bitmap(chara.img_atk[1], chara.x, chara.y,  ALLEGRO_FLIP_HORIZONTAL);
-                al_play_sample_instance(chara.atk_Sound);
+                
             }
         }
 

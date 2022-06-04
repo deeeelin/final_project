@@ -30,6 +30,8 @@ ALLEGRO_FONT *font1 = NULL;
 
 int num_of_enemy=4,next=0,ti_me=0,mt=10,count_time,num_of_background=0; //(num_of_enemy didn't use)
 
+//srand(time(NULL)); // set random seed 
+
 // the state of character
 enum {STOP = 0, MOVE, ATK}; 
 
@@ -97,10 +99,12 @@ void ene_init(){
     ene[1].x = 10;
     ene[1].y = HEIGHT/2;
     ene[1].active=1;
+    ene[1].dir=true; //down
 
     ene[2].x = WIDTH-140;
     ene[2].y = HEIGHT;
     ene[2].active=1;
+    ene[2].dir=false; // up
 
     ene[3].x = 0;
     ene[3].y = 0-20;
@@ -147,8 +151,8 @@ void bullet_init(){
         if(chara.dir) bu[i].x =WIDTH-1 ;
         else bu[i].x = 0+1;
         bu[i].y=chara.y+30;
-        bu[i].dir = chara.dir;
-        bu[i].active=0;
+        bu[i].dir = true;
+        bu[i].active=1;
     }
 
     return ;
@@ -188,7 +192,9 @@ void shot_ene(){//determine whether the enemy has been shot
 
             if(abs( bu[j].x-ene[i].x)<40 && abs(bu[j].y-ene[i].y)<70 && bu[j].active==1 && ene[i].active==1)
             {
-                ene[i].active=0; // enemy hide
+                ene[i].active=1; // enemy hide
+                if(ene[i].dir)ene[i].y=1;
+                else ene[i].y=HEIGHT;
                 bu[j].active=0; // bullet hide
 
                 // bullet back to chara
@@ -213,8 +219,11 @@ void been_shot() //determine whether the main character has been shot
 
         if(abs(bu[i].x-chara.x)<50&&abs(bu[i].y-chara.y)<70&& bu[i].active==1)
         {
-            bu[i].active=0; // bullet hide
-
+            bu[i].active=1; // bullet hide
+            if(chara.dir) bu[i].x =WIDTH-1;
+            else bu[i].x = 0+1;
+            bu[i].y=(rand()%(HEIGHT-0+1)+0);
+            bu[i].dir = chara.dir;
             hp--; //health point minus 1
             return;
         }
@@ -259,17 +268,27 @@ void object_moving(){
     }
 
     // enemy bullets keep flying 
-    if(bu[10].x>0&&bu[10].x<(WIDTH/2)&&!(bu[10].dir && bu[10].active==1)) bu[10].x+=3;
-    
-    else if(bu[10].x>(WIDTH/2-50)&&bu[10].x<WIDTH&&(bu[10].dir && bu[10].active==1)) bu[10].x-=3;
-    
+    if(bu[10].x>0&&bu[10].x<(WIDTH)&& bu[10].active==1){
+        
+        if(bu[10].dir) bu[10].x+=3;
+        else bu[10].x-=3;
+    }
+    else if((bu[10].x<=0 || bu[10].x>=(WIDTH)) && bu[10].active==1){
+        if(bu[10].dir){bu[10].dir=false;bu[10].x=WIDTH-1;}
+        else {bu[10].dir=true;bu[10].x=1;}
+    }
 
     // active enemy go back and forth
     for(int i=1;i<=4;i++){
-        if(ene[i].y< -20) ene[i].y=HEIGHT;//let the character be back to screen
-        else if(ene[i].y>HEIGHT) ene[i].y=-20;
-        else
-            ene[i].y-=3;
+        if(ene[i].y>0 &&ene[i].y<(HEIGHT)&& ene[i].active==1){
+        
+            if(ene[i].dir) ene[i].y+=20;
+            else ene[i].y-=20;
+        }
+         else if((ene[i].y<=0 || ene[i].y>=(HEIGHT)) && ene[i].active==1){
+            if(ene[i].dir){ene[i].dir=false;ene[i].y=HEIGHT-1;}
+            else {ene[i].dir=true;ene[i].y=1;}
+        }
     }
     return ;
     

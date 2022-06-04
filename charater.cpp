@@ -12,7 +12,7 @@ typedef struct character
     ALLEGRO_SAMPLE_INSTANCE *atk_Sound;
     int anime; // counting the time of animation
     int anime_time; // indicate how long the animation
-    int active;
+    int active; // when active=1 show in the screen,if active =0 then hide
 }Character;
 
 typedef struct Bullet
@@ -22,26 +22,26 @@ typedef struct Bullet
     bool dir; // left: false, right: true
     int state; // the state of character
     ALLEGRO_BITMAP *img_b[2];
-    int active;
+    int active; // when active=1 show in the screen,if active =0 then hide
 }bullet;
 
 
 ALLEGRO_FONT *font1 = NULL;
 
-int num_of_enemy=4,next=0,ti_me=0,mt=10,count_time,num_of_background=0;
-//mt是道具持續時間,bulletready判斷主角子彈有沒有飛,fly判斷炸彈有沒有在飛
-// the state of character
-enum {STOP = 0, MOVE, ATK};
+int num_of_enemy=4,next=0,ti_me=0,mt=10,count_time,num_of_background=0; //(num_of_enemy didn't use)
 
+// the state of character
+enum {STOP = 0, MOVE, ATK}; 
+
+// define main character and enemies
 Character chara={0},ene[5]={0};
 
-//子彈(bu1是主角射出的子彈，bu1-9，b10是攻擊主角的炸藥
-
+// define main character bullets and enemies
 bullet bu[11]={0};
 
 ALLEGRO_SAMPLE *sample = NULL;
 
-
+// init main character and enemies
 void character_init(){
 
     char temp[50];
@@ -58,6 +58,8 @@ void character_init(){
         sprintf( temp, "./image/char_atk%d.png", i );
         chara.img_atk[i-1] = al_load_bitmap(temp);
     }
+
+    // load enemy images
     for(int i=1;i<=4;i++){
         sprintf( temp, "./image/ene%d_move.png",i);
         ene[i].img_move[0] = al_load_bitmap(temp);
@@ -108,11 +110,12 @@ void character_init(){
     return ;
 }
 
+// initialize main character's bullets and enemy bullets
 void bullet_init(){
     
     char temp[50];
 
-    // set chara bullet picture size
+    // load chara bullet's picture
     for(int i=1;i<=9;i++){
         sprintf( temp, "./image/bu%d.png",1);
         bu[i].img_b[0] = al_load_bitmap(temp);
@@ -124,7 +127,7 @@ void bullet_init(){
         bu[i].active=0;
     }
    
-
+    // load enemy bullet's(bomb) picture,there are only one recently  
     for(int i=10;i<=10;i++){
         sprintf( temp, "./image/bu%d.png",2);
         bu[i].img_b[0] = al_load_bitmap(temp);
@@ -156,33 +159,41 @@ void charater_process(ALLEGRO_EVENT event){
     return ;
 }
 
-void shot_ene()//判斷敵人有沒有被子彈碰到
-{
-    for(int i=1;i<=4;i++){
-        for(int j=1;j<=9;j++){
+void shot_ene(){//determine whether the enemy has been shot
+
+    for(int i=1;i<=4;i++){ // four enemies 
+        for(int j=1;j<=9;j++){ // nine main character's bullet
+
             if(abs( bu[j].x-ene[i].x)<40 && abs(bu[j].y-ene[i].y)<70 && bu[j].active==1 && ene[i].active==1)
             {
-                ene[i].active=0;
+                ene[i].active=0; // enemy hide
                 bu[j].active=0; // bullet hide
-                bu[j].x=chara.x; // bullet back to chara
-                bu[j].y=chara.y+30;
-                bu[j].dir = chara.dir;
-                sc++; ;//現在子彈已經射傷敵人了，這樣分數只會加一分
+
+                // bullet back to chara
+                bu[j].x=chara.x; 
+                bu[j].y=chara.y+30; 
+                bu[j].dir = chara.dir; 
+
+                //score plus
+                sc++; ;
+
                 return; 
             }
         }
 
     }
-    return;  //for gcc compiler 
+    return; 
 }
 
-void been_shot()//判斷主角有沒有被子彈碰到
+void been_shot() //determine whether the main character has been shot
 {
-    for(int i=10;i<=10;i++){
+    for(int i=10;i<=10;i++){ // 1 enemy bullet 
+
         if(abs(bu[i].x-chara.x)<50&&abs(bu[i].y-chara.y)<70&& bu[i].active==1)
         {
             bu[i].active=0; // bullet hide
-            hp--; //現在子彈已經射傷主角了，這樣hp只會扣一分
+
+            hp--; //health point minus 1
             return;
         }
     }
@@ -190,24 +201,26 @@ void been_shot()//判斷主角有沒有被子彈碰到
 }
 
 void bullet_active(){ // show new bullet 
+
     int i=1;
-    while(bu[i].active==1 && i<9){
+    while(bu[i].active==1 && i<9){ // iterate to the available bullet (bullet that is hidden and not flying)
         i++;
     }
-    bu[i].active=1;
+    bu[i].active=1; // show this bullet,let it start to fly
     return ;
 }
 
 void ene_active(int next){
     if(next==1){
         for(int i=1;i<=4;i++){
-            ene[i].active=1;
+            ene[i].active=1; // when scene upgrade let the hidden enemy be shown,and start to move
         }
     }
     return ;
 }
 
 void things_moving(){
+
      // chara bullets that is active will keep flying 
     for(int i=1;i<=9;i++){
 
@@ -229,10 +242,9 @@ void things_moving(){
     else if(bu[10].x>(WIDTH/2-50)&&bu[10].x<WIDTH&&(bu[10].dir && bu[10].active==1)) bu[10].x-=3;
     
 
-    // active slow and fast enemy go back and forth
+    // active enemy go back and forth
     for(int i=1;i<=4;i++){
-        if(ene[i].y< -20)
-            ene[i].y=HEIGHT;//讓角色回來畫面裡
+        if(ene[i].y< -20) ene[i].y=HEIGHT;//let the character be back to screen
         else if(ene[i].y>HEIGHT) ene[i].y=-20;
         else
             ene[i].y-=3;
@@ -258,11 +270,17 @@ void interpreting_keys(){
         chara.state = MOVE;
     }else if( key_state[ALLEGRO_KEY_SPACE] ){   
         chara.state = ATK;
-        bullet_active();
-        al_play_sample_instance(chara.atk_Sound);
-        key_state[ALLEGRO_KEY_SPACE]=false;
+        bullet_active(); // if space is pressed ,then active a new bullet 
+
+        /* if space is pressed ,play a sound (dont put this in character_draw 
+        or else the sound cannot be match to shooting bullets)*/
+        al_play_sample_instance(chara.atk_Sound); 
+        
+
+        key_state[ALLEGRO_KEY_SPACE]=false; // if you dont add this,then when you long-press key space ,it will be continous shooting
     }
-    // bullet that is hidden ,goes with character
+
+    // bullet that is hidden ,will goes with character
     for(int i=1;i<=9;i++){
         if(bu[i].active==0){
             bu[i].x=chara.x;
@@ -281,17 +299,18 @@ void charater_update()
         num_of_background=0;
     }
     
-    // charater been shot
+    // see if charater been shot
     been_shot();
 
-    //shot enemy
+    //see if enemy been shot
     shot_ene();
-     // upgrade scene and difficulty
 
-    if((sc%5)==0&&sc>0)hp=3;//當sc=5會切換場景，自動回血使主角hp=3
-    if(sc>5&&next==0){next++;ene_active(next);}//sc指的是分數，sc>5時會跑出另外兩個敵人。
+     // upgrade scene and difficulty
+    if((sc%5)==0&&sc>0)hp=3;//when scene==5 will change background and let hp back to full
     
-    // update the movement of things 
+    if(sc>5&&next==0){next++;ene_active(next);}//sc is the score，sc>5 will have two more enemies
+    
+    // update the movement of things (except the main character)
     things_moving();
     
     // interpreting what we should do if a keys is press 
@@ -309,14 +328,14 @@ void charater_update()
     
 }
 
-void character_draw(){ //checked
+void character_draw(){ 
     
-
+    // count time for scoring
     count_time++; 
     ti_me=count_time/10; 
 
     if(mt>0) mt-=1;
-
+  
     al_draw_textf(font1,al_map_rgb_f(1,1,1),1, 1,0,"score: %d",sc);
     al_draw_textf(font1,al_map_rgb_f(1,1,1),750, 1,0,"hp: %d",hp);
     al_draw_textf(font1,al_map_rgb_f(1,1,1),1, 475,0,"time: %d",ti_me);
@@ -331,7 +350,7 @@ void character_draw(){ //checked
         }     
     } 
     
-    // draw bullets if active
+    // draw main character and enmy bullets if active
     for(int i=1;i<=10;i++){
         if(bu[i].active==1){
             if(bu[i].dir) al_draw_bitmap(bu[i].img_b[0], bu[i].x, bu[i].y, 0);
@@ -381,7 +400,7 @@ void character_draw(){ //checked
     }
 }
 
-void character_destory(){ // checked 
+void character_destory(){ // destroy created objects
 
     for(int i=0;i<=1;i++){
         al_destroy_bitmap(chara.img_atk[i]);

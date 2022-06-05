@@ -7,7 +7,7 @@ ALLEGRO_BITMAP *win = NULL;
 ALLEGRO_BITMAP *lose= NULL;
 // function of menu
 void menu_init(){
-    font = al_load_ttf_font("./font/pirulen.ttf",30,0);
+    font = al_load_ttf_font("./font/normalfont.otf",30,0);
 }
 void menu_process(ALLEGRO_EVENT event){
     if( event.type == ALLEGRO_EVENT_KEY_UP )

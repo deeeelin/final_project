@@ -46,7 +46,7 @@ ALLEGRO_SAMPLE *sample = NULL;
 
 void font_init(){
      // load font 
-    font1 = al_load_ttf_font("./font/pirulen.ttf",25,0);
+    font1 = al_load_ttf_font("./font/normalfont.otf",40,0);
     return ;
 }
 

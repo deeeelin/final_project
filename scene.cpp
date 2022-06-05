@@ -17,15 +17,16 @@ void menu_process(ALLEGRO_EVENT event){
             judge_next_window = true;
 }
 void menu_draw(){
-    al_clear_to_color(al_map_rgb(100,100,100));
+    // al_clear_to_color(al_map_rgb(100,100,100));
+    al_draw_scaled_bitmap(menu_background,0, 0,al_get_bitmap_width(menu_background),al_get_bitmap_height(menu_background),0, 0,WIDTH,HEIGHT,0);
     al_draw_text(font, al_map_rgb(255,255,255), WIDTH/2, HEIGHT/2+100 , ALLEGRO_ALIGN_CENTRE, "Press 'Enter' to start");
-    al_draw_bitmap(menu_background,100,100,0);
     //al_draw_rectangle(WIDTH/2-150, 510, WIDTH/2+150, HEIGHT/2, al_map_rgb(255, 255, 255), 0);
 
 }
 void menu_destroy(){
-    al_destroy_font(font);
+
     al_destroy_bitmap(menu_background);
+    al_destroy_font(font);
 }
 
 // function of game_scene
@@ -39,21 +40,21 @@ void game_scene_init(){
 void game_scene_draw(){
     if(hp<=0)
     {
-         al_draw_bitmap(lose, 0, 0, 0);
+          al_draw_scaled_bitmap(lose,0, 0,al_get_bitmap_width(lose),al_get_bitmap_height(lose),0, 0,WIDTH,HEIGHT,0);
     }
     else if(sc>=10)
     {
-         al_draw_bitmap(win, 0, 0, 0);
+         al_draw_scaled_bitmap(win,0, 0,al_get_bitmap_width(win),al_get_bitmap_height(win),0, 0,WIDTH,HEIGHT,0);
     }
     else if(sc<5)
     {
-        al_draw_bitmap(game_background, 0, 0, 0);
+        al_draw_scaled_bitmap(game_background,0, 0,al_get_bitmap_width(game_background),al_get_bitmap_height(game_background),0, 0,WIDTH,HEIGHT,0);
         object_draw();
 
     }
     else
     {
-        al_draw_bitmap(game_background_2, 0, 0, 0);
+        al_draw_scaled_bitmap(game_background_2,0, 0,al_get_bitmap_width(game_background_2),al_get_bitmap_height(game_background_2),0, 0,WIDTH,HEIGHT,0);
         object_draw();
 
     }

@@ -54,35 +54,11 @@ tool tl[11]={0};
 
 ALLEGRO_SAMPLE *sample = NULL;
 // init main character and enemies
+void draw_bitmap(ALLEGRO_BITMAP* var,int x,int y,int width,int height,int flags){
 
-
-ALLEGRO_BITMAP *load_bitmap_to_a_size( char *path, int width, int height)
-{
-  ALLEGRO_BITMAP *temp_bmp, *orig_bmp, *prev_target;
-
-  // create a temp bitmap of a size we want
-  temp_bmp = al_create_bitmap(width, height);
-
-  // load the original picture and become a bitmap
-  orig_bmp = al_load_bitmap(path);
-
-  //change the target bitmap from the original bitmap to temp bitmap
-  prev_target = al_get_target_bitmap();
-  al_set_target_bitmap(temp_bmp);
-
-  // copy the content of target bitmap to temp bitmap 
-  // al_draw_scaled_bitmap : draws a scaled version of the given bitmap to the target bitmap.
-  al_draw_scaled_bitmap(orig_bmp,0, 0,al_get_bitmap_width(orig_bmp),al_get_bitmap_height(orig_bmp),0, 0,width, height,0);
-
-  /* change the target bitmap back and destroy the original bitmap we don't need
-  if you don't change back the target bitmap then then allegro will continue to draw 
-  on the temp_bitmap*/
-  al_set_target_bitmap(prev_target);
-  al_destroy_bitmap(orig_bmp);
-
-  return temp_bmp;      
+     al_draw_scaled_bitmap(var,0, 0,al_get_bitmap_width(var),al_get_bitmap_height(var),x,y,width,height,flags);
+     return ;
 }
-
 void font_init(){
      // load font 
     font1 = al_load_ttf_font("./font/normalfont.otf",40,0);
@@ -442,60 +418,60 @@ void object_draw(){
     for(int i=1;i<=4;i++){
         //printf("%d",ene[2].active);
         if(ene[i].active==1){
-            al_draw_bitmap(ene[i].img_move[0], ene[i].x, ene[i].y, 0);
+            draw_bitmap(ene[i].img_move[0], ene[i].x, ene[i].y,ene[i].width,ene[i].height, 0);
         }     
     } 
     
     // draw main character and enmy bullets if active
     for(int i=1;i<=9;i++){
         if(bu_m[i].active==1){
-            if(bu_m[i].dir) al_draw_bitmap(bu_m[i].img_b[0], bu_m[i].x, bu_m[i].y, 0);
+            if(bu_m[i].dir) draw_bitmap(bu_m[i].img_b[0], bu_m[i].x, bu_m[i].y,bu_m[i].width,bu_m[i].height,0);
 
-            else al_draw_bitmap(bu_m[i].img_b[0], bu_m[i].x, bu_m[i].y, ALLEGRO_FLIP_HORIZONTAL);
+            else draw_bitmap(bu_m[i].img_b[0], bu_m[i].x, bu_m[i].y,bu_m[i].width,bu_m[i].height, ALLEGRO_FLIP_HORIZONTAL);
 
         }
     }
     for(int i=1;i<=1;i++){
         if(bu_e[i].active==1){
-            if(bu_e[i].dir) al_draw_bitmap(bu_e[i].img_b[0], bu_e[i].x, bu_e[i].y, 0);
+            if(bu_e[i].dir) draw_bitmap(bu_e[i].img_b[0], bu_e[i].x, bu_e[i].y,bu_e[i].width,bu_e[i].height, 0);
 
-            else al_draw_bitmap(bu_e[i].img_b[0], bu_e[i].x, bu_e[i].y, ALLEGRO_FLIP_HORIZONTAL);
+            else draw_bitmap(bu_e[i].img_b[0], bu_e[i].x, bu_e[i].y,bu_e[i].width,bu_e[i].height, ALLEGRO_FLIP_HORIZONTAL);
         }
     }
     
     // with the state, draw corresponding image
     if( chara.state == STOP ){
         if( chara.dir )
-            al_draw_scaled_bitmap(chara.img_move[0],0, 0,al_get_bitmap_width(chara.img_move[0]),al_get_bitmap_height(chara.img_move[0]),chara.x, chara.y,chara.width,chara.height,0);
+            draw_bitmap(chara.img_move[0],chara.x, chara.y,chara.width,chara.height,0);
         else
-            al_draw_scaled_bitmap(chara.img_move[0],0, 0,al_get_bitmap_width(chara.img_move[0]),al_get_bitmap_height(chara.img_move[0]),chara.x, chara.y,chara.width,chara.height,ALLEGRO_FLIP_HORIZONTAL);
+            draw_bitmap(chara.img_move[0],chara.x, chara.y,chara.width,chara.height,ALLEGRO_FLIP_HORIZONTAL);
     }else if( chara.state == MOVE ){
         if( chara.dir ){
             if( chara.anime < chara.anime_time/2 ){
-                al_draw_scaled_bitmap(chara.img_move[0],0, 0,al_get_bitmap_width(chara.img_move[0]),al_get_bitmap_height(chara.img_move[0]),chara.x, chara.y,chara.width,chara.height,0);
+                draw_bitmap(chara.img_move[0],chara.x, chara.y,chara.width,chara.height,0);
             }else{
-               al_draw_scaled_bitmap(chara.img_move[1],0, 0,al_get_bitmap_width(chara.img_move[0]),al_get_bitmap_height(chara.img_move[0]),chara.x, chara.y,chara.width,chara.height,0);
+               draw_bitmap(chara.img_move[1],chara.x, chara.y,chara.width,chara.height,0);
             }
         }else{
             if( chara.anime < chara.anime_time/2 ){
-                al_draw_scaled_bitmap(chara.img_move[0],0, 0,al_get_bitmap_width(chara.img_move[0]),al_get_bitmap_height(chara.img_move[0]),chara.x, chara.y,chara.width,chara.height,ALLEGRO_FLIP_HORIZONTAL);
+                draw_bitmap(chara.img_move[0],chara.x, chara.y,chara.width,chara.height,ALLEGRO_FLIP_HORIZONTAL);
             }else{
-                 al_draw_scaled_bitmap(chara.img_move[1],0, 0,al_get_bitmap_width(chara.img_move[0]),al_get_bitmap_height(chara.img_move[0]),chara.x, chara.y,chara.width,chara.height,ALLEGRO_FLIP_HORIZONTAL);
+                 draw_bitmap(chara.img_move[1],chara.x, chara.y,chara.width,chara.height,ALLEGRO_FLIP_HORIZONTAL);
             }
         }
     }else if( chara.state == ATK ){
         if( chara.dir ){
             if( chara.anime < chara.anime_time/2 ){
-                al_draw_scaled_bitmap(chara.img_move[0],0, 0,al_get_bitmap_width(chara.img_move[0]),al_get_bitmap_height(chara.img_move[0]),chara.x, chara.y,chara.width,chara.height,0);
+                draw_bitmap(chara.img_move[0],chara.x, chara.y,chara.width,chara.height,0);
             }else{
-               al_draw_scaled_bitmap(chara.img_move[1],0, 0,al_get_bitmap_width(chara.img_move[0]),al_get_bitmap_height(chara.img_move[0]),chara.x, chara.y,chara.width,chara.height,0);
+               draw_bitmap(chara.img_move[1],0, 0,al_get_bitmap_width(chara.img_move[0]),chara.x, chara.y,chara.width,chara.height,0);
                
             }
         }else{
             if( chara.anime < chara.anime_time/2 ){
-                al_draw_scaled_bitmap(chara.img_move[0],0, 0,al_get_bitmap_width(chara.img_move[0]),al_get_bitmap_height(chara.img_move[0]),chara.x, chara.y,chara.width,chara.height,ALLEGRO_FLIP_HORIZONTAL);
+                draw_bitmap(chara.img_move[0],chara.x, chara.y,chara.width,chara.height,ALLEGRO_FLIP_HORIZONTAL);
             }else{
-                 al_draw_scaled_bitmap(chara.img_move[0],0, 0,al_get_bitmap_width(chara.img_move[0]),al_get_bitmap_height(chara.img_move[1]),chara.x, chara.y,chara.width,chara.height,ALLEGRO_FLIP_HORIZONTAL);
+                 draw_bitmap(chara.img_move[0],chara.x, chara.y,chara.width,chara.height,ALLEGRO_FLIP_HORIZONTAL);
                 
             }
         }

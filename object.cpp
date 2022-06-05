@@ -1,4 +1,4 @@
-#include "charater.h"
+#include "object.h"
 #include "scene.h"
 
 typedef struct character
@@ -171,7 +171,7 @@ void all_object_init(){
     return ;
 }
 
-void charater_process(ALLEGRO_EVENT event){
+void object_process(ALLEGRO_EVENT event){
     // process the animation
     if( event.type == ALLEGRO_EVENT_TIMER ){
         if( event.timer.source == fps ){
@@ -343,7 +343,7 @@ void interpreting_keys(){
     return ;
 }
 
-void charater_update()
+void object_update()
 {
     // use the idea of finite state machine to deal with different state
     if(num_of_background==1)
@@ -380,7 +380,7 @@ void charater_update()
     
 }
 
-void character_draw(){ 
+void object_draw(){ 
     
     // count time for scoring
     count_time++; 
@@ -459,7 +459,7 @@ void character_draw(){
     }
 }
 
-void character_destory(){ // destroy created objects
+void object_destroy(){ // destroy created objects
 
     for(int i=0;i<=1;i++){
         al_destroy_bitmap(chara.img_atk[i]);

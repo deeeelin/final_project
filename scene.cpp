@@ -44,13 +44,13 @@ void game_scene_draw(){
     else if(sc<5)
     {
         al_draw_bitmap(background, 0, 0, 0);
-        character_draw();
+        object_draw();
 
     }
     else
     {
         al_draw_bitmap(background2, 0, 0, 0);
-        character_draw();
+        object_draw();
 
     }
 }
@@ -62,5 +62,5 @@ void game_scene_destroy(){
     al_destroy_bitmap(background2);
     al_destroy_bitmap(win);
     al_destroy_bitmap(lose);
-    character_destory();
+    object_destroy();
 }

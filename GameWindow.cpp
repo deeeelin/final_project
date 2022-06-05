@@ -87,7 +87,7 @@ void game_update(){
         }
     }
     if( window == 2 ){
-        charater_update();
+        object_update();
     }
 
 
@@ -100,7 +100,7 @@ int process_event(){
     if( window == 1 ){
         menu_process(event);
     }else if( window == 2 ){
-        charater_process(event);
+        object_process(event);
     }
 
     // Shutdown our program

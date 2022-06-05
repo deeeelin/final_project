@@ -25,6 +25,14 @@ typedef struct Bullet
     int active; // when active=1 show in the screen,if active =0 then hide
 }bullet;
 
+typedef struct Tool{
+    int x,y;
+    int width,height;
+    bool dir;
+    int state;
+    ALLEGRO_BITMAP *img_t[2];
+    int active;
+}tool;
 
 ALLEGRO_FONT *font1 = NULL;
 
@@ -41,8 +49,39 @@ Character chara={0},ene[5]={0};
 // define main character bullets and enemies
 bullet bu_m[11]={0},bu_e[11]={0};
 
+// define tools 
+tool tl[11]={0};
+
 ALLEGRO_SAMPLE *sample = NULL;
 // init main character and enemies
+
+
+ALLEGRO_BITMAP *load_bitmap_to_a_size( char *path, int width, int height)
+{
+  ALLEGRO_BITMAP *temp_bmp, *orig_bmp, *prev_target;
+
+  // create a temp bitmap of a size we want
+  temp_bmp = al_create_bitmap(width, height);
+
+  // load the original picture and become a bitmap
+  orig_bmp = al_load_bitmap(path);
+
+  //change the target bitmap from the original bitmap to temp bitmap
+  prev_target = al_get_target_bitmap();
+  al_set_target_bitmap(temp_bmp);
+
+  // copy the content of target bitmap to temp bitmap 
+  // al_draw_scaled_bitmap : draws a scaled version of the given bitmap to the target bitmap.
+  al_draw_scaled_bitmap(orig_bmp,0, 0,al_get_bitmap_width(orig_bmp),al_get_bitmap_height(orig_bmp),0, 0,width, height,0);
+
+  /* change the target bitmap back and destroy the original bitmap we don't need
+  if you don't change back the target bitmap then then allegro will continue to draw 
+  on the temp_bitmap*/
+  al_set_target_bitmap(prev_target);
+  al_destroy_bitmap(orig_bmp);
+
+  return temp_bmp;      
+}
 
 void font_init(){
      // load font 
@@ -62,7 +101,7 @@ void chara_init(){
         chara.img_move[i-1] = al_load_bitmap(temp);
 
         sprintf( temp, "./image/char_atk%d.png", i );
-        chara.img_atk[i-1] = al_load_bitmap(temp);
+        chara.img_atk[i-1] =  al_load_bitmap(temp);
     }
 
     // initial the geometric information of character
@@ -81,6 +120,8 @@ void chara_init(){
     return ;
 }
 
+
+
 void ene_init(){
 
     char temp[50];
@@ -98,7 +139,7 @@ void ene_init(){
     }
 
     // init enemy position
-    ene[1].x = 10;
+    ene[1].x = 0;
     ene[1].y = HEIGHT/2;
     ene[1].active=1;
     ene[1].dir=true; //down
@@ -108,11 +149,11 @@ void ene_init(){
     ene[2].active=1;
     ene[2].dir=false; // up
 
-    ene[3].x = 0;
+    ene[3].x = 60;
     ene[3].y = 0-20;
     ene[3].active=0;
 
-    ene[4].x = WIDTH-150;
+    ene[4].x = WIDTH-200;
     ene[4].y = HEIGHT+20;
     ene[4].active=0;
     
@@ -160,6 +201,9 @@ void bullet_init(){
 
     return ;
 
+}
+void tool_init(){
+    return;
 }
 
 void all_object_init(){
@@ -422,36 +466,36 @@ void object_draw(){
     // with the state, draw corresponding image
     if( chara.state == STOP ){
         if( chara.dir )
-            al_draw_bitmap(chara.img_move[0], chara.x, chara.y,0);
+            al_draw_scaled_bitmap(chara.img_move[0],0, 0,al_get_bitmap_width(chara.img_move[0]),al_get_bitmap_height(chara.img_move[0]),chara.x, chara.y,chara.width,chara.height,0);
         else
-            al_draw_bitmap(chara.img_move[0], chara.x, chara.y,  ALLEGRO_FLIP_HORIZONTAL);
+            al_draw_scaled_bitmap(chara.img_move[0],0, 0,al_get_bitmap_width(chara.img_move[0]),al_get_bitmap_height(chara.img_move[0]),chara.x, chara.y,chara.width,chara.height,ALLEGRO_FLIP_HORIZONTAL);
     }else if( chara.state == MOVE ){
         if( chara.dir ){
             if( chara.anime < chara.anime_time/2 ){
-                al_draw_bitmap(chara.img_move[0], chara.x, chara.y, 0);
+                al_draw_scaled_bitmap(chara.img_move[0],0, 0,al_get_bitmap_width(chara.img_move[0]),al_get_bitmap_height(chara.img_move[0]),chara.x, chara.y,chara.width,chara.height,0);
             }else{
-                al_draw_bitmap(chara.img_move[1], chara.x, chara.y, 0);
+               al_draw_scaled_bitmap(chara.img_move[1],0, 0,al_get_bitmap_width(chara.img_move[0]),al_get_bitmap_height(chara.img_move[0]),chara.x, chara.y,chara.width,chara.height,0);
             }
         }else{
             if( chara.anime < chara.anime_time/2 ){
-                al_draw_bitmap(chara.img_move[0], chara.x, chara.y,  ALLEGRO_FLIP_HORIZONTAL);
+                al_draw_scaled_bitmap(chara.img_move[0],0, 0,al_get_bitmap_width(chara.img_move[0]),al_get_bitmap_height(chara.img_move[0]),chara.x, chara.y,chara.width,chara.height,ALLEGRO_FLIP_HORIZONTAL);
             }else{
-                al_draw_bitmap(chara.img_move[1], chara.x, chara.y,  ALLEGRO_FLIP_HORIZONTAL);
+                 al_draw_scaled_bitmap(chara.img_move[1],0, 0,al_get_bitmap_width(chara.img_move[0]),al_get_bitmap_height(chara.img_move[0]),chara.x, chara.y,chara.width,chara.height,ALLEGRO_FLIP_HORIZONTAL);
             }
         }
     }else if( chara.state == ATK ){
         if( chara.dir ){
             if( chara.anime < chara.anime_time/2 ){
-                al_draw_bitmap(chara.img_atk[0], chara.x, chara.y, 0);
+                al_draw_scaled_bitmap(chara.img_move[0],0, 0,al_get_bitmap_width(chara.img_move[0]),al_get_bitmap_height(chara.img_move[0]),chara.x, chara.y,chara.width,chara.height,0);
             }else{
-                al_draw_bitmap(chara.img_atk[1], chara.x, chara.y, 0);
+               al_draw_scaled_bitmap(chara.img_move[1],0, 0,al_get_bitmap_width(chara.img_move[0]),al_get_bitmap_height(chara.img_move[0]),chara.x, chara.y,chara.width,chara.height,0);
                
             }
         }else{
             if( chara.anime < chara.anime_time/2 ){
-                al_draw_bitmap(chara.img_atk[0], chara.x, chara.y,  ALLEGRO_FLIP_HORIZONTAL);
+                al_draw_scaled_bitmap(chara.img_move[0],0, 0,al_get_bitmap_width(chara.img_move[0]),al_get_bitmap_height(chara.img_move[0]),chara.x, chara.y,chara.width,chara.height,ALLEGRO_FLIP_HORIZONTAL);
             }else{
-                al_draw_bitmap(chara.img_atk[1], chara.x, chara.y,  ALLEGRO_FLIP_HORIZONTAL);
+                 al_draw_scaled_bitmap(chara.img_move[0],0, 0,al_get_bitmap_width(chara.img_move[0]),al_get_bitmap_height(chara.img_move[1]),chara.x, chara.y,chara.width,chara.height,ALLEGRO_FLIP_HORIZONTAL);
                 
             }
         }

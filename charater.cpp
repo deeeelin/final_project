@@ -54,12 +54,13 @@ void chara_init(){
 
     char temp[50];
 
-    // load character images
+   
     for(int i = 1 ; i <=2 ; i++){
+
+         // load character images
         sprintf( temp, "./image/char_move%d.png", i );
         chara.img_move[i-1] = al_load_bitmap(temp);
-    }
-    for(int i=1;i<=2;i++){
+
         sprintf( temp, "./image/char_atk%d.png", i );
         chara.img_atk[i-1] = al_load_bitmap(temp);
     }
@@ -84,13 +85,14 @@ void ene_init(){
 
     char temp[50];
 
-    // load enemy images
+   
     for(int i=1;i<=4;i++){
+        
+    // load enemy images
         sprintf( temp, "./image/ene%d_move.png",i);
         ene[i].img_move[0] = al_load_bitmap(temp);
-    }
     // init enemy picture size
-    for(int i=1;i<=4;i++){
+
         ene[i].width = al_get_bitmap_width(ene[i].img_move[0]);
         ene[i].height = al_get_bitmap_height(ene[i].img_move[0]);
     }
@@ -119,6 +121,7 @@ void ene_init(){
 }
 
 void sound_init(){
+    
     // load effective sound
     sample = al_load_sample("./sound/atk_sound.wav");
     chara.atk_Sound  = al_create_sample_instance(sample);

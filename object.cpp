@@ -464,7 +464,7 @@ void object_draw(){
             if( chara.anime < chara.anime_time/2 ){
                 draw_bitmap(chara.img_move[0],chara.x, chara.y,chara.width,chara.height,0);
             }else{
-               draw_bitmap(chara.img_move[1],0, 0,al_get_bitmap_width(chara.img_move[0]),chara.x, chara.y,chara.width,chara.height,0);
+               draw_bitmap(chara.img_move[1],chara.x, chara.y,chara.width,chara.height,0);
                
             }
         }else{

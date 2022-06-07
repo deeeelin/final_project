@@ -1,6 +1,6 @@
 #include "object.h"
 #include "scene.h"
-
+ 
 typedef struct character
 {
     int x, y; // the position of image
@@ -53,7 +53,14 @@ bullet bu_m[11]={0},bu_e[11]={0};
 tool tl[11]={0};
 
 ALLEGRO_SAMPLE *sample = NULL;
-// init main character and enemies
+
+
+// to determine whether two thing is touched( ps: not yet sure if it is correct!!!!!!!!!!,need to check)
+int touched(int a_x,int a_y,int a_width,int a_height,int b_x,int b_y,int b_width,int b_height){
+    if ( ( (a_x+a_width) - (b_x-b_width) >=0 && ( (a_x-a_width) - (b_x+b_width) ) <= 0) &&
+       ( ( (a_y+a_height) - (b_y-b_height) >=0 && ( (a_y-a_height) - (b_y+b_height) ) <= 0))   )return 1;
+    else return 0;
+}
 void draw_bitmap(ALLEGRO_BITMAP* var,int x,int y,int width,int height,int flags){
 
      al_draw_scaled_bitmap(var,0, 0,al_get_bitmap_width(var),al_get_bitmap_height(var),x,y,width,height,flags);
@@ -81,10 +88,12 @@ void chara_init(){
     }
 
     // initial the geometric information of character
-    chara.width = al_get_bitmap_width(chara.img_move[0]);
-    chara.height = al_get_bitmap_height(chara.img_move[0]);
-    chara.x = WIDTH/2-100;
-    chara.y = HEIGHT/2;
+    chara.width = WIDTH/11;
+    chara.height = HEIGHT/11;
+    // main character central point : (chara.width,chara.height+30)
+    chara.x = WIDTH/2-50;
+    chara.y = HEIGHT/2-30;
+    
     chara.dir = false;
 
     // initial the animation component
@@ -110,8 +119,8 @@ void ene_init(){
         ene[i].img_move[0] = al_load_bitmap(temp);
     // init enemy picture size
 
-        ene[i].width = al_get_bitmap_width(ene[i].img_move[0]);
-        ene[i].height = al_get_bitmap_height(ene[i].img_move[0]);
+        ene[i].width =WIDTH/11;
+        ene[i].height = HEIGHT/11;
     }
 
     // init enemy position
@@ -156,10 +165,10 @@ void bullet_init(){
     for(int i=1;i<=9;i++){
         sprintf( temp, "./image/bu%d.png",1);
         bu_m[i].img_b[0] = al_load_bitmap(temp);
-        bu_m[i].width = al_get_bitmap_width(bu_m[i].img_b[0]);
-        bu_m[i].height = al_get_bitmap_height(bu_m[i].img_b[0]);
+        bu_m[i].width = WIDTH/30;
+        bu_m[i].height = HEIGHT/30;
         bu_m[i].x = chara.x;
-        bu_m[i].y=chara.y+30;
+        bu_m[i].y=chara.y+20;
         bu_m[i].dir = chara.dir;
         bu_m[i].active=0;
     }
@@ -168,8 +177,8 @@ void bullet_init(){
     for(int i=1;i<=1;i++){
         sprintf( temp, "./image/bu%d.png",2);
         bu_e[i].img_b[0] = al_load_bitmap(temp);
-        bu_e[i].width = al_get_bitmap_width(bu_e[i].img_b[0]);
-        bu_e[i].height = al_get_bitmap_height(bu_e[i].img_b[0]);
+        bu_e[i].width = WIDTH/20;
+        bu_e[i].height = HEIGHT/20;
         if(chara.dir) bu_e[i].x =WIDTH-1 ;
         else bu_e[i].x = 0+1;
         bu_e[i].y=chara.y+30;
@@ -184,17 +193,25 @@ void tool_init(){
     char temp[50];
 
     // load tool's picture
-    for(int i=1;i<=1;i++){
-        sprintf( temp, "./image/malware.png");
+    for(int i=1;i<=2;i++){
+        sprintf( temp, "./image/tool%d.png",i);
         tl[i].img_t[0] = al_load_bitmap(temp);
-        tl[i].width = al_get_bitmap_width(tl[i].img_t[0]);
-        tl[i].height = al_get_bitmap_height(tl[i].img_t[0]);
-        if(chara.dir) tl[i].x =1 ;
-        else tl[i].x = WIDTH-1;
-        tl[i].y=chara.y+30;
-        tl[i].dir = !(chara.dir);
-        tl[i].active=1;
     }
+    tl[1].width =  WIDTH/20;
+    tl[1].height = HEIGHT/20;
+    if(chara.dir) tl[1].x =1 ;
+    else tl[1].x = WIDTH-1;
+    tl[1].y=chara.y+30;
+    tl[1].dir = !(chara.dir);
+    tl[1].active=1;
+
+    tl[2].width =  WIDTH/20;
+    tl[2].height = HEIGHT/20;
+    if(chara.dir) tl[2].x =chara.x+30;
+    else tl[2].x = chara.x-30;
+    tl[2].y=chara.y+30;
+    tl[2].dir = !(chara.dir);
+    tl[2].active=0;
 
 
 
@@ -282,7 +299,7 @@ void been_cure(){  //determine whether the main character has been cure
             tl[i].active=1; // bullet hide
             if(chara.dir) tl[i].x =1;
             else tl[i].x = WIDTH-1;
-            tl[i].y=(rand()%(HEIGHT-0+1)+0);
+            tl[i].y=(rand()%(HEIGHT)-30);
             tl[i].dir = chara.dir;
             hp++; //health point minus 1
             return;
@@ -317,8 +334,8 @@ void object_moving(){                                                           
     for(int i=1;i<=9;i++){
 
         if(bu_m[i].x>30&&bu_m[i].x<WIDTH && bu_m[i].active==1){
-            if(bu_m[i].dir) bu_m[i].x+=40;
-            else bu_m[i].x-=40;
+            if(bu_m[i].dir) bu_m[i].x+=20;
+            else bu_m[i].x-=20;
         }
         else if( (bu_m[i].x<30 || bu_m[i].x>WIDTH) && bu_m[i].active==1){
             bu_m[i].active=0; // bullet out of screen ,so hide
@@ -336,8 +353,8 @@ void object_moving(){                                                           
             else bu_e[i].x-=3;
         }
         else if((bu_e[i].x<=0 || bu_e[i].x>=(WIDTH)) && bu_e[i].active==1){
-            if(bu_e[i].dir){bu_e[i].dir=false;bu_e[i].x=WIDTH-1;}
-            else {bu_e[i].dir=true;bu_e[i].x=1;}
+            if(bu_e[i].dir){bu_e[i].dir=false;bu_e[i].x=WIDTH-1;bu_e[i].y=chara.y;}
+            else {bu_e[i].dir=true;bu_e[i].x=1;bu_e[i].y=chara.y;}
         }
 
     }
@@ -376,10 +393,12 @@ void object_moving(){                                                           
 void interpreting_keys(){
 
     if( key_state[ALLEGRO_KEY_W] ){
+        if(chara.y>-30+chara.height/2+10)
         chara.y -= 5;
         chara.state = MOVE;
     }
     else if( key_state[ALLEGRO_KEY_S] ){
+        if(chara.y<(HEIGHT-30-chara.height/2))
         chara.y += 5;
         chara.state = MOVE;
     }
@@ -408,11 +427,17 @@ void interpreting_keys(){
     for(int i=1;i<=9;i++){
         if(bu_m[i].active==0){
             bu_m[i].x=chara.x;
-            bu_m[i].y=chara.y+30;
+            bu_m[i].y=chara.y+20;
             bu_m[i].dir=chara.dir;
         }
     }
     return ;
+    
+
+    if(chara.dir) tl[2].x =chara.x+30;
+    else tl[2].x = chara.x-30;
+    tl[2].y=chara.y+30;
+    tl[2].dir = !(chara.dir);
 }
 
 void object_update()
@@ -440,7 +465,7 @@ void object_update()
     //when scene==5 will change background and let hp back to full
 
     if(sc>5&&next==0){next++;ene_active(next);}//sc is the score，sc>5 will have two more enemies
-
+    
     // update the movement of things (except the main character)
     object_moving();
 

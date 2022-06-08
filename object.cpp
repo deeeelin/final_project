@@ -61,6 +61,16 @@ int touched(int a_x,int a_y,int a_width,int a_height,int b_x,int b_y,int b_width
        ( ( (a_y+a_height) - (b_y-b_height) >=0 && ( (a_y-a_height) - (b_y+b_height) ) <= 0))   )return 1;
     else return 0;
 }
+
+// (x,y)=health bar left up corner position,percent=health percentage
+void draw_health_bar(int x,int y,int width,int height,float percent){
+    
+    al_draw_rectangle(x,y,x+width,y+height,al_map_rgb(0,0,0),2);
+    if(percent!=0) al_draw_filled_rectangle(x+1,y+1,x+(width*percent)-1,y+height-1,al_map_rgb(255,0,0));
+    return ;
+    
+}
+
 void draw_bitmap(ALLEGRO_BITMAP* var,int x,int y,int width,int height,int flags){
 
      al_draw_scaled_bitmap(var,0, 0,al_get_bitmap_width(var),al_get_bitmap_height(var),x,y,width,height,flags);

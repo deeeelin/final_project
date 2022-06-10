@@ -1,6 +1,6 @@
 #include "object.h"
 #include "scene.h"
- 
+
 typedef struct character
 {
     int x, y; // the position of image
@@ -51,6 +51,8 @@ bullet bu_m[11]={0},bu_e[11]={0};
 
 // define tools
 tool tl[11]={0};
+tool wa[11]={0};
+
 
 ALLEGRO_SAMPLE *sample = NULL;
 
@@ -64,11 +66,11 @@ int touched(int a_x,int a_y,int a_width,int a_height,int b_x,int b_y,int b_width
 
 // (x,y)=health bar left up corner position,percent=health percentage
 void draw_health_bar(int x,int y,int width,int height,float percent){
-    
+
     al_draw_rectangle(x,y,x+width,y+height,al_map_rgb(0,0,0),2);
     if(percent!=0) al_draw_filled_rectangle(x+1,y+1,x+(width*percent)-1,y+height-1,al_map_rgb(255,0,0));
     return ;
-    
+
 }
 
 void draw_bitmap(ALLEGRO_BITMAP* var,int x,int y,int width,int height,int flags){
@@ -103,7 +105,7 @@ void chara_init(){
     // main character central point : (chara.width,chara.height+30)
     chara.x = WIDTH/2-50;
     chara.y = HEIGHT/2-30;
-    
+
     chara.dir = false;
 
     // initial the animation component
@@ -203,10 +205,12 @@ void tool_init(){
     char temp[50];
 
     // load tool's picture
-    for(int i=1;i<=2;i++){
-        sprintf( temp, "./image/tool%d.png",i);
-        tl[i].img_t[0] = al_load_bitmap(temp);
-    }
+
+        sprintf( temp, "./image/tool%d.png",1);
+        tl[1].img_t[0] = al_load_bitmap(temp);
+        sprintf( temp,"./image/tool%d.jpg",2);
+        tl[2].img_t[0]=al_load_bitmap(temp);
+
     tl[1].width =  WIDTH/20;
     tl[1].height = HEIGHT/20;
     if(chara.dir) tl[1].x =1 ;
@@ -215,11 +219,11 @@ void tool_init(){
     tl[1].dir = !(chara.dir);
     tl[1].active=1;
 
-    tl[2].width =  WIDTH/20;
-    tl[2].height = HEIGHT/20;
-    if(chara.dir) tl[2].x =chara.x+30;
-    else tl[2].x = chara.x-30;
-    tl[2].y=chara.y+30;
+    tl[2].width =  WIDTH/40;
+    tl[2].height = HEIGHT/15;
+    if(chara.dir) tl[2].x =chara.x+70;
+    else tl[2].x = chara.x+70;
+    tl[2].y=chara.y+20;
     tl[2].dir = !(chara.dir);
     tl[2].active=0;
 
@@ -227,6 +231,7 @@ void tool_init(){
 
     return;
 }
+
 
 void all_object_init(){
     tool_init();
@@ -312,10 +317,22 @@ void been_cure(){  //determine whether the main character has been cure
             tl[i].y=(rand()%(HEIGHT)-30);
             tl[i].dir = chara.dir;
             hp++; //health point minus 1
+            tl[2].active=1;
             return;
         }
     }
     return ;
+
+}
+
+void bounce(){
+    for(int i=2;i<=2;i++){
+        if(abs(tl[i].x-bu_e[1].x)<50&&abs(tl[i].y-bu_e[1].y)<70&& tl[i].active==1)
+        {
+            tl[i].active=0;
+            bu_e[1].dir=!(bu_e[1].dir);
+        }
+    }
 
 }
 
@@ -338,7 +355,15 @@ void ene_active(int next){
     return ;
 }
 
-void object_moving(){                                                                                               //remain y moving problem
+void object_moving(){  
+    // char bullt that is not acitve goes with chara  
+    for(int i=1;i<=9;i++){
+        if(bu_m[i].active==0){
+            bu_m[i].x=chara.x;
+            bu_m[i].y=chara.y+20;
+            bu_m[i].dir=chara.dir;
+        }
+    }                                                                                           //remain y moving problem
 
      // chara bullets that is active will keep flying
     for(int i=1;i<=9;i++){
@@ -381,6 +406,20 @@ void object_moving(){                                                           
             else {tl[i].dir=true;tl[i].x=1;}
         }
 
+    }
+
+    for(int i=2;i<=2;i++){
+        if(tl[i].y>0 &&tl[i].y<(HEIGHT)&& tl[i].active==1){
+            if(chara.dir){
+                tl[i].y=chara.y+10;
+                tl[i].x=chara.x+70;
+            }
+            else{
+                tl[i].y=chara.y+10;
+                tl[i].x=chara.x-10;
+
+            }            
+        }
     }
 
 
@@ -434,20 +473,7 @@ void interpreting_keys(){
     }
 
     // bullet that is hidden ,will goes with character
-    for(int i=1;i<=9;i++){
-        if(bu_m[i].active==0){
-            bu_m[i].x=chara.x;
-            bu_m[i].y=chara.y+20;
-            bu_m[i].dir=chara.dir;
-        }
-    }
     return ;
-    
-
-    if(chara.dir) tl[2].x =chara.x+30;
-    else tl[2].x = chara.x-30;
-    tl[2].y=chara.y+30;
-    tl[2].dir = !(chara.dir);
 }
 
 void object_update()
@@ -467,6 +493,8 @@ void object_update()
     //see if charater been cure
     been_cure();
 
+    bounce();
+
      // upgrade scene and difficulty
     if((sc%5)==0&&sc>0){
             if(hp<3)
@@ -475,7 +503,7 @@ void object_update()
     //when scene==5 will change background and let hp back to full
 
     if(sc>5&&next==0){next++;ene_active(next);}//sc is the score，sc>5 will have two more enemies
-    
+
     // update the movement of things (except the main character)
     object_moving();
 
@@ -539,6 +567,12 @@ void object_draw(){                                                           //
             else draw_bitmap(tl[i].img_t[0], tl[i].x, tl[i].y,tl[i].width,tl[i].height, ALLEGRO_FLIP_HORIZONTAL);
         }
     }
+    for(int i=2;i<=2;i++){
+        if(tl[i].active==1){
+            if(chara.dir) draw_bitmap(tl[i].img_t[0], tl[i].x, tl[i].y,tl[i].width,tl[i].height, 0);
+            else  draw_bitmap(tl[i].img_t[0], tl[i].x, tl[i].y,tl[i].width,tl[i].height, ALLEGRO_FLIP_HORIZONTAL);
+        }
+    }
 
     // with the state, draw corresponding image
     if( chara.state == STOP ){
@@ -593,6 +627,8 @@ void object_destroy(){ // destroy created objects
     for(int i=1;i<=1;i++) al_destroy_bitmap(bu_e[i].img_b[0]);
 
     for(int i=1;i<=1;i++) al_destroy_bitmap(tl[i].img_t[0]);
+
+    for(int i=1;i<=2;i++) al_destroy_bitmap(tl[i].img_t[0]);
 
     al_destroy_sample_instance(chara.atk_Sound);
 

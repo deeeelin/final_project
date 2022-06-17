@@ -9,3 +9,4 @@ void re_game_process(int temp);
 void game_scene_init();
 int game_scene_draw();
 void game_scene_destroy();
+void scoreboard_init();

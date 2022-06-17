@@ -74,6 +74,7 @@ void game_begin() {
     al_start_timer(fps);
     // initialize the menu before entering the loop
     menu_init();
+    scoreboard_init();
 
 }
 

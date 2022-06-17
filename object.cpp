@@ -36,7 +36,7 @@ typedef struct Tool{
 
 ALLEGRO_FONT *font1 = NULL;
 
-int num_of_enemy=4,next=0,ti_me=0,mt=10,count_time,num_of_background=0; //(num_of_enemy didn't use)
+
 
 //srand(time(NULL)); // set random seed
 

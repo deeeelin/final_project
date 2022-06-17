@@ -2,7 +2,8 @@
 
 bool draw = false;
 int window = 1;
-
+int temp;
+bool not_first_round=false;
 const char *title = "Final Project: I am a shooter";
 
 // ALLEGRO Variables
@@ -75,13 +76,15 @@ void game_begin() {
     menu_init();
 
 }
+
 void game_update(){
     if( judge_next_window ){
         if( window == 1 ){
             // not back menu anymore, therefore destroy it
-            menu_destroy();
+           // menu_destroy();
             // initialize next scene
-            game_scene_init();
+            if(!not_first_round)game_scene_init();
+            else (all_object_init());
             judge_next_window = false;
             window = 2;
         }
@@ -92,6 +95,7 @@ void game_update(){
 
 
 }
+
 int process_event(){
     // Request the event
     ALLEGRO_EVENT event;
@@ -101,6 +105,12 @@ int process_event(){
         menu_process(event);
     }else if( window == 2 ){
         object_process(event);
+    }
+    else if(window == 3){
+
+        re_game_process(temp);
+        not_first_round=true;
+        window=1;
     }
 
     // Shutdown our program
@@ -112,14 +122,19 @@ int process_event(){
     if(draw) game_update();
     return 0;
 }
+
 void game_draw(){
     if( window == 1 ){
         menu_draw();
     }else if( window == 2 ){
-        game_scene_draw();
+        temp=game_scene_draw();
+        if(temp>0) {
+            window=3;
+        }
     }
     al_flip_display();
 }
+
 int game_run() {
     int error = 0;
     if( draw ){

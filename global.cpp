@@ -10,6 +10,12 @@ bool key_state[ALLEGRO_KEY_MAX] = {false};
 bool judge_next_window = false;
 int sc=0;
 int hp=3;
+int num_of_enemy=4;
+int next=0;
+int ti_me=0;
+int mt=10;
+int count_time=0;
+int num_of_background=0; //(num_of_enemy didn't use)
 
 
 

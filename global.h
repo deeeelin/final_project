@@ -23,4 +23,10 @@ extern bool key_state[ALLEGRO_KEY_MAX];
 extern bool judge_next_window;
 extern ALLEGRO_EVENT_QUEUE *event_queue;
 extern ALLEGRO_TIMER *fps;
+extern int num_of_enemy;
+extern int next;
+extern int ti_me;
+extern int mt;
+extern int count_time;
+extern int num_of_background; //(num_of_enemy didn't use)
 #endif

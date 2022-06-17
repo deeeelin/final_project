@@ -327,11 +327,11 @@ void been_cure(){  //determine whether the main character has been cure
 }
 
 void bounce(){
-    for(int i=2;i<=2;i++){
-        if(abs(tl[i].x-bu_e[1].x)<50&&abs(tl[i].y-bu_e[1].y)<70&& tl[i].active==1)
+    for(int i=1;i<=5;i++){
+        if(abs(tl[2].x-bu_e[i].x)<50&&abs(tl[2].y-bu_e[i].y)<70&& tl[2].active==1)
         {
-            tl[i].active=0;
-            bu_e[1].dir=!(bu_e[1].dir);
+            tl[2].active=0;
+            bu_e[i].dir=!(bu_e[i].dir);
         }
     }
 

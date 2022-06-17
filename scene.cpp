@@ -58,7 +58,7 @@ void scoreboard_init(){
     return ;
 }
 void re_game_process(int temp){
-    
+
     while(1){
         ALLEGRO_EVENT event;
         al_wait_for_event(event_queue, &event);
@@ -71,15 +71,28 @@ void re_game_process(int temp){
         }
     }
     while(1){ // show your score 
+        const char temp[100]={0};
+        sprintf(temp,"your score:%d",sc);
         ALLEGRO_EVENT event;
         al_wait_for_event(event_queue, &event);
         // draw your score 
         al_draw_scaled_bitmap(scoreboard,0,0,al_get_bitmap_width(scoreboard),al_get_bitmap_height(scoreboard),0, 0,WIDTH,HEIGHT,0);
         al_draw_text(font, al_map_rgb(255,0,0), WIDTH/2, HEIGHT/2+100 , ALLEGRO_ALIGN_CENTRE, "Press 'Enter' back to menu");
+        al_draw_text(font, al_map_rgb(255,0,0), 100, 100 , ALLEGRO_ALIGN_CENTRE, temp);
         al_flip_display();
         if( event.type == ALLEGRO_EVENT_KEY_UP){
             if( event.keyboard.keycode == ALLEGRO_KEY_ENTER)break;    
         }
+    }
+
+    FILE * fpr,*fpw;
+    int max_score;
+   // char * now= ctime();
+    fpr=fopen("./score.txt","r");
+    fpw=fopen("./score.txt","w");
+    fscanf(fpr,"score:%d",&max_score);
+    if(max_score<sc){
+        fprintf(fpw,"score:%d\nname:none\ntime:%s\n",sc,now);
     }
     re_init_game();
 }

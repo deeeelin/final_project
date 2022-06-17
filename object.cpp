@@ -186,15 +186,16 @@ void bullet_init(){
     }
 
     // load enemy bullet's(bomb) picture,there are only one recently
-    for(int i=1;i<=1;i++){
+    for(int i=1;i<=5;i++){
         sprintf( temp, "./image/bu%d.png",2);
         bu_e[i].img_b[0] = al_load_bitmap(temp);
         bu_e[i].width = WIDTH/20;
         bu_e[i].height = HEIGHT/20;
-        if(chara.dir) bu_e[i].x =WIDTH-1 ;
+        if(i%2==1) bu_e[i].x =WIDTH-1 ;
         else bu_e[i].x = 0+1;
-        bu_e[i].y=chara.y+30;
-        bu_e[i].dir = true;
+        bu_e[i].y=100*i;
+        if(i%2==1) bu_e[i].dir =false ;
+        else bu_e[i].dir =true;
         bu_e[i].active=1;
     }
 
@@ -290,7 +291,7 @@ void shot_ene(){//determine whether the enemy has been shot
 
 void been_shot() //determine whether the main character has been shot
 {
-    for(int i=1;i<=1;i++){ // 1 enemy bullet
+    for(int i=1;i<=5;i++){ // 1 enemy bullet
 
         if(abs(bu_e[i].x-chara.x)<50&&abs(bu_e[i].y-chara.y)<70&& bu_e[i].active==1)
         {
@@ -381,15 +382,23 @@ void object_moving(){
     }
 
     // enemy bullets keep flying
-    for(int i=1;i<=1;i++){
+    for(int i=1;i<=5;i++){
         if(bu_e[i].x>0&&bu_e[i].x<(WIDTH)&& bu_e[i].active==1){
 
             if(bu_e[i].dir) bu_e[i].x+=3;
             else bu_e[i].x-=3;
         }
         else if((bu_e[i].x<=0 || bu_e[i].x>=(WIDTH)) && bu_e[i].active==1){
-            if(bu_e[i].dir){bu_e[i].dir=false;bu_e[i].x=WIDTH-1;bu_e[i].y=chara.y;}
-            else {bu_e[i].dir=true;bu_e[i].x=1;bu_e[i].y=chara.y;}
+            if(bu_e[i].dir){
+                bu_e[i].dir=false;bu_e[i].x=WIDTH-1;
+                if(i>=2 && i<=4)bu_e[i].y=rand()%(200)+((i-1)*100);
+                else bu_e[i].y=i*100;
+            }
+            else {
+                bu_e[i].dir=true;bu_e[i].x=1;
+                if(i>=2 && i<=4) bu_e[i].y=rand()%(200)+((i-1)*100);
+                else bu_e[i].y=i*100;
+            }
         }
 
     }
@@ -553,7 +562,7 @@ void object_draw(){                                                           //
 
         }
     }
-    for(int i=1;i<=1;i++){
+    for(int i=1;i<=5;i++){
         if(bu_e[i].active==1){
             if(bu_e[i].dir) draw_bitmap(bu_e[i].img_b[0], bu_e[i].x, bu_e[i].y,bu_e[i].width,bu_e[i].height, 0);
 

@@ -13,6 +13,8 @@ typedef struct character
     int anime; // counting the time of animation
     int anime_time; // indicate how long the animation
     int active; // when active=1 show in the screen,if active =0 then hide
+    int hp;
+    int hp_full;
 }Character;
 
 typedef struct Bullet
@@ -140,20 +142,28 @@ void ene_init(){
     ene[1].y = HEIGHT/2;
     ene[1].active=1;
     ene[1].dir=true; //down
+    ene[1].hp=3;
+    ene[1].hp_full=3;
 
     ene[2].x = WIDTH-140;
     ene[2].y = HEIGHT;
     ene[2].active=1;
     ene[2].dir=false; // up
+    ene[2].hp=3;
+    ene[2].hp_full=3;
+    
 
     ene[3].x = 60;
     ene[3].y = 0-20;
     ene[3].active=0;
+    ene[3].hp=6;
+    ene[3].hp_full=6;
 
     ene[4].x = WIDTH-200;
     ene[4].y = HEIGHT+20;
     ene[4].active=0;
-
+    ene[4].hp=6;
+    ene[4].hp_full=6;
     return ;
 
 }
@@ -194,6 +204,19 @@ void bullet_init(){
         if(i%2==1) bu_e[i].x =WIDTH-1 ;
         else bu_e[i].x = 0+1;
         bu_e[i].y=100*i;
+        if(i%2==1) bu_e[i].dir =false ;
+        else bu_e[i].dir =true;
+        bu_e[i].active=1;
+    }
+    
+    for(int i=6;i<=7;i++){
+        sprintf(temp,"./image/bu3.jpg");
+        bu_e[i].img_b[0] = al_load_bitmap(temp);
+        bu_e[i].width = WIDTH/40;
+        bu_e[i].height = HEIGHT/5;
+        if(i%2==1) bu_e[i].x =WIDTH-1 ;
+        else bu_e[i].x = 0+1;
+        bu_e[i].y=chara.y;
         if(i%2==1) bu_e[i].dir =false ;
         else bu_e[i].dir =true;
         bu_e[i].active=1;
@@ -268,9 +291,8 @@ void shot_ene(){//determine whether the enemy has been shot
 
             if(abs( bu_m[j].x-ene[i].x)<40 && abs(bu_m[j].y-ene[i].y)<70 && bu_m[j].active==1 && ene[i].active==1)
             {
-                ene[i].active=1; // enemy hide
-                if(ene[i].dir)ene[i].y=1;
-                else ene[i].y=HEIGHT;
+                ene[i].hp--;
+                if(ene[i].hp==0)ene[i].active=0; // enemy hide
                 bu_m[j].active=0; // bullet hide
 
                 // bullet back to chara
@@ -303,6 +325,20 @@ void been_shot() //determine whether the main character has been shot
             hp--; //health point minus 1
             return;
         }
+    }
+    for(int i=6;i<=7;i++){
+         if(abs(bu_e[i].x-chara.x)<50&&abs(bu_e[i].y-chara.y)<70&& bu_e[i].active==1)
+         {
+            bu_e[i].active=1; // bullet hide
+            if(chara.dir) bu_e[i].x =WIDTH-1;
+            else bu_e[i].x = 0+1;
+            if(i%2==1)bu_e[i].y=HEIGHT/2+40-rand()%(HEIGHT/2);
+            else bu_e[i].y=HEIGHT-30-rand()%(HEIGHT/2);
+            bu_e[i].dir = chara.dir;
+            hp--; //health point minus 1
+            return;
+         }
+
     }
     return ;
 }
@@ -398,6 +434,24 @@ void object_moving(){
                 bu_e[i].dir=true;bu_e[i].x=1;
                 if(i>=2 && i<=4) bu_e[i].y=rand()%(200)+((i-1)*100);
                 else bu_e[i].y=i*100;
+            }
+        }
+
+    }
+    for(int i=6;i<=7;i++){
+        if(bu_e[i].x>0&&bu_e[i].x<(WIDTH)&& bu_e[i].active==1){
+
+            if(bu_e[i].dir) bu_e[i].x+=3;
+            else bu_e[i].x-=3;
+        }
+        else if((bu_e[i].x<=0 || bu_e[i].x>=(WIDTH)) && bu_e[i].active==1){
+            if(bu_e[i].dir){
+                bu_e[i].dir=false;bu_e[i].x=WIDTH-1;
+
+
+            }
+            else{
+                 bu_e[i].dir=true;bu_e[i].x=1;
             }
         }
 
@@ -549,6 +603,7 @@ void object_draw(){                                                           //
     for(int i=1;i<=4;i++){
         //printf("%d",ene[2].active);
         if(ene[i].active==1){
+            draw_health_bar(ene[i].x+20,ene[i].y-30,40,10,float(ene[i].hp)/ene[i].hp_full);
             draw_bitmap(ene[i].img_move[0], ene[i].x, ene[i].y,ene[i].width,ene[i].height, 0);
         }
     }
@@ -562,7 +617,7 @@ void object_draw(){                                                           //
 
         }
     }
-    for(int i=1;i<=5;i++){
+    for(int i=1;i<=7;i++){
         if(bu_e[i].active==1){
             if(bu_e[i].dir) draw_bitmap(bu_e[i].img_b[0], bu_e[i].x, bu_e[i].y,bu_e[i].width,bu_e[i].height, 0);
 
@@ -582,7 +637,8 @@ void object_draw(){                                                           //
             else  draw_bitmap(tl[i].img_t[0], tl[i].x, tl[i].y,tl[i].width,tl[i].height, ALLEGRO_FLIP_HORIZONTAL);
         }
     }
-
+    
+    draw_health_bar(chara.x+20,chara.y-30,40,10,float(hp)/hp_full);
     // with the state, draw corresponding image
     if( chara.state == STOP ){
         if( chara.dir )

@@ -26,6 +26,7 @@ extern ALLEGRO_TIMER *fps;
 extern int num_of_enemy;
 extern int next;
 extern int ti_me;
+extern int hp_full;
 extern int mt;
 extern int count_time;
 extern int num_of_background; //(num_of_enemy didn't use)

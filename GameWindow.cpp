@@ -109,6 +109,7 @@ int process_event(){
     else if(window == 3){
 
         re_game_process(temp);
+        
         not_first_round=true;
         window=1;
     }

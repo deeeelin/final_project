@@ -2,7 +2,7 @@
 
 bool draw = false;
 int window = 1;
-int temp;
+int temp=0;
 bool not_first_round=false;
 const char *title = "Final Project: I am a shooter";
 
@@ -126,6 +126,8 @@ int process_event(){
 }
 
 void game_draw(){
+    
+
     if( window == 1 ){
         menu_draw();
     }else if( window == 2 ){

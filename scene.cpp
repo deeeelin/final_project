@@ -57,10 +57,12 @@ void scoreboard_init(){
     scoreboard=al_load_bitmap("./image/images.jpeg");
     return ;
 }
-void re_game_process(int temp){
+void re_game_process(int bg){
 
     FILE * fp,*fpw;
     int max_score;
+    char date[200];
+    char* tmp;
     time_t curtime;
     time(&curtime);
     fp=fopen("./score.txt","r");
@@ -68,19 +70,23 @@ void re_game_process(int temp){
     fclose(fp);
     if(max_score<sc){
         max_score=sc;
+        tmp=ctime(&curtime);
         fp=fopen("./score.txt","w+");
         fclose(fp);
         fp=fopen("./score.txt","r+");
-        fprintf(fp,"score:%d\nname:none\ntime:%s\n",sc,ctime(&curtime));
+        fprintf(fp,"score:%d\nname:none\ndate:%s.\n",sc,tmp);
         fclose(fp);
-
     }
+    //fp=fopen("./score.txt","r");
+    //fscanf(fp,"date:%s.",date);
+    //fclose(fp);
+    //printf("%s",date);
 
     while(1){
         ALLEGRO_EVENT event;
         al_wait_for_event(event_queue, &event);
-        if(temp==1) al_draw_scaled_bitmap(lose,0, 0,al_get_bitmap_width(lose),al_get_bitmap_height(lose),0, 0,WIDTH,HEIGHT,0);
-        else if(temp==2) al_draw_scaled_bitmap(win,0, 0,al_get_bitmap_width(win),al_get_bitmap_height(win),0, 0,WIDTH,HEIGHT,0);
+        if(bg==1) al_draw_scaled_bitmap(lose,0, 0,al_get_bitmap_width(lose),al_get_bitmap_height(lose),0, 0,WIDTH,HEIGHT,0);
+        else if(bg==2) al_draw_scaled_bitmap(win,0, 0,al_get_bitmap_width(win),al_get_bitmap_height(win),0, 0,WIDTH,HEIGHT,0);
         al_draw_text(font, al_map_rgb(255,0,0), WIDTH/2, HEIGHT/2+100 , ALLEGRO_ALIGN_CENTRE, "Press 'Enter");
         al_flip_display();
         if( event.type == ALLEGRO_EVENT_KEY_UP){

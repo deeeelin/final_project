@@ -292,7 +292,10 @@ void shot_ene(){//determine whether the enemy has been shot
             if(abs( bu_m[j].x-ene[i].x)<40 && abs(bu_m[j].y-ene[i].y)<70 && bu_m[j].active==1 && ene[i].active==1)
             {
                 ene[i].hp--;
-                if(ene[i].hp==0)ene[i].active=0; // enemy hide
+                if(ene[i].hp==0){
+                    ene[i].active=0;
+                    num_of_enemy--; // enemy hide
+                }
                 bu_m[j].active=0; // bullet hide
 
                 // bullet back to chara

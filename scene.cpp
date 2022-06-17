@@ -59,6 +59,23 @@ void scoreboard_init(){
 }
 void re_game_process(int temp){
 
+    FILE * fp,*fpw;
+    int max_score;
+    time_t curtime;
+    time(&curtime);
+    fp=fopen("./score.txt","r");
+    fscanf(fp,"score:%d",&max_score);
+    fclose(fp);
+    if(max_score<sc){
+        max_score=sc;
+        fp=fopen("./score.txt","w+");
+        fclose(fp);
+        fp=fopen("./score.txt","r+");
+        fprintf(fp,"score:%d\nname:none\ntime:%s\n",sc,ctime(&curtime));
+        fclose(fp);
+
+    }
+
     while(1){
         ALLEGRO_EVENT event;
         al_wait_for_event(event_queue, &event);
@@ -70,29 +87,25 @@ void re_game_process(int temp){
             if( event.keyboard.keycode == ALLEGRO_KEY_ENTER)break ;    
         }
     }
+
+
     while(1){ // show your score 
-        const char temp[100]={0};
-        sprintf(temp,"your score:%d",sc);
         ALLEGRO_EVENT event;
         al_wait_for_event(event_queue, &event);
         // draw your score 
         al_draw_scaled_bitmap(scoreboard,0,0,al_get_bitmap_width(scoreboard),al_get_bitmap_height(scoreboard),0, 0,WIDTH,HEIGHT,0);
         al_draw_text(font, al_map_rgb(255,0,0), WIDTH/2, HEIGHT/2+100 , ALLEGRO_ALIGN_CENTRE, "Press 'Enter' back to menu");
-        al_draw_text(font, al_map_rgb(255,0,0), 100, 100 , ALLEGRO_ALIGN_CENTRE, temp);
+        al_draw_textf(font,al_map_rgb_f(255,0,0),140, 140,0,"your score: %d",sc);
+        al_draw_textf(font,al_map_rgb_f(255,0,0),140, 180,0,"recent highest score: %d",max_score);
+        al_draw_textf(font,al_map_rgb_f(255,0,0),140, 220,0,"game time: %d",ti_me);
+        al_draw_textf(font,al_map_rgb_f(255,0,0),140, 260,0,"enemy killed: %d",4-num_of_enemy);
+
+
+
         al_flip_display();
         if( event.type == ALLEGRO_EVENT_KEY_UP){
             if( event.keyboard.keycode == ALLEGRO_KEY_ENTER)break;    
         }
-    }
-
-    FILE * fpr,*fpw;
-    int max_score;
-   // char * now= ctime();
-    fpr=fopen("./score.txt","r");
-    fpw=fopen("./score.txt","w");
-    fscanf(fpr,"score:%d",&max_score);
-    if(max_score<sc){
-        fprintf(fpw,"score:%d\nname:none\ntime:%s\n",sc,now);
     }
     re_init_game();
 }

@@ -13,9 +13,6 @@ typedef struct character
     int anime; // counting the time of animation
     int anime_time; // indicate how long the animation
     int active; // when active=1 show in the screen,if active =0 then hide
-    int hp;
-    int hp_full;
-    int mode;
 }Character;
 
 typedef struct Bullet
@@ -39,7 +36,7 @@ typedef struct Tool{
 
 ALLEGRO_FONT *font1 = NULL;
 
-
+int num_of_enemy=4,next=0,ti_me=0,mt=10,count_time,num_of_background=0; //(num_of_enemy didn't use)
 
 //srand(time(NULL)); // set random seed
 
@@ -50,37 +47,18 @@ enum {STOP = 0, MOVE, ATK};
 Character chara={0},ene[5]={0};
 
 // define main character bullets and enemies
-bullet bu_m[28]={0},bu_e[11]={0};
+bullet bu_m[11]={0},bu_e[11]={0};
 
 // define tools
 tool tl[11]={0};
 
-int count2=-1;
 ALLEGRO_SAMPLE *sample = NULL;
-
-
-// to determine whether two thing is touched( ps: not yet sure if it is correct!!!!!!!!!!,need to check)
-int touched(int a_x,int a_y,int a_width,int a_height,int b_x,int b_y,int b_width,int b_height){
-    if ( ( (a_x+a_width) - (b_x-b_width) >=0 && ( (a_x-a_width) - (b_x+b_width) ) <= 0) &&
-       ( ( (a_y+a_height) - (b_y-b_height) >=0 && ( (a_y-a_height) - (b_y+b_height) ) <= 0))   )return 1;
-    else return 0;
-}
-
-// (x,y)=health bar left up corner position,percent=health percentage
-void draw_health_bar(float x,float y,int width,int height,float percent){
-
-    al_draw_rectangle(x,y,x+width,y+height,al_map_rgb(0,0,0),2);
-    if(percent!=0) al_draw_filled_rectangle(x+1,y+1,x+(width*percent)-1,y+height-1,al_map_rgb(255,0,0));
-    return ;
-
-}
-
-void draw_bitmap(ALLEGRO_BITMAP* var,float x,float y,int width,int height,int flags){
+// init main character and enemies
+void draw_bitmap(ALLEGRO_BITMAP* var,int x,int y,int width,int height,int flags){
 
      al_draw_scaled_bitmap(var,0, 0,al_get_bitmap_width(var),al_get_bitmap_height(var),x,y,width,height,flags);
      return ;
 }
-
 void font_init(){
      // load font
     font1 = al_load_ttf_font("./font/normalfont.otf",40,0);
@@ -103,12 +81,10 @@ void chara_init(){
     }
 
     // initial the geometric information of character
-    chara.width = WIDTH/11;
-    chara.height = HEIGHT/11;
-    // main character central point : (chara.width,chara.height+30)
-    chara.x = WIDTH/2-50;
-    chara.y = HEIGHT/2-30;
-
+    chara.width = al_get_bitmap_width(chara.img_move[0]);
+    chara.height = al_get_bitmap_height(chara.img_move[0]);
+    chara.x = WIDTH/2-100;
+    chara.y = HEIGHT/2;
     chara.dir = false;
 
     // initial the animation component
@@ -116,12 +92,11 @@ void chara_init(){
     chara.anime = 0;
     chara.anime_time = 30;
 
-    chara.mode=0;
-
-
 
     return ;
 }
+
+
 
 void ene_init(){
 
@@ -135,8 +110,8 @@ void ene_init(){
         ene[i].img_move[0] = al_load_bitmap(temp);
     // init enemy picture size
 
-        ene[i].width =WIDTH/11;
-        ene[i].height = HEIGHT/11;
+        ene[i].width = al_get_bitmap_width(ene[i].img_move[0]);
+        ene[i].height = al_get_bitmap_height(ene[i].img_move[0]);
     }
 
     // init enemy position
@@ -144,28 +119,20 @@ void ene_init(){
     ene[1].y = HEIGHT/2;
     ene[1].active=1;
     ene[1].dir=true; //down
-    ene[1].hp=3;
-    ene[1].hp_full=3;
 
     ene[2].x = WIDTH-140;
     ene[2].y = HEIGHT;
     ene[2].active=1;
     ene[2].dir=false; // up
-    ene[2].hp=3;
-    ene[2].hp_full=3;
-    
 
     ene[3].x = 60;
     ene[3].y = 0-20;
     ene[3].active=0;
-    ene[3].hp=6;
-    ene[3].hp_full=6;
 
     ene[4].x = WIDTH-200;
     ene[4].y = HEIGHT+20;
     ene[4].active=0;
-    ene[4].hp=6;
-    ene[4].hp_full=6;
+
     return ;
 
 }
@@ -185,94 +152,54 @@ void bullet_init(){
 
     char temp[50];
 
-    
     // load chara bullet's picture
-    for(int i=1;i<=27;i++){
+    for(int i=1;i<=9;i++){
         sprintf( temp, "./image/bu%d.png",1);
         bu_m[i].img_b[0] = al_load_bitmap(temp);
-        bu_m[i].img_b[1]=al_load_bitmap("./image/rotated_bu.png");
-        bu_m[i].width = WIDTH/30;
-        bu_m[i].height = HEIGHT/30;
+        bu_m[i].width = al_get_bitmap_width(bu_m[i].img_b[0]);
+        bu_m[i].height = al_get_bitmap_height(bu_m[i].img_b[0]);
         bu_m[i].x = chara.x;
-        bu_m[i].y=chara.y+20;
+        bu_m[i].y=chara.y+30;
         bu_m[i].dir = chara.dir;
         bu_m[i].active=0;
-        bu_m[i].state=0;
     }
 
     // load enemy bullet's(bomb) picture,there are only one recently
-    for(int i=1;i<=5;i++){
+    for(int i=1;i<=1;i++){
         sprintf( temp, "./image/bu%d.png",2);
         bu_e[i].img_b[0] = al_load_bitmap(temp);
-        bu_e[i].width = WIDTH/20;
-        bu_e[i].height = HEIGHT/20;
-        if(i%2==1) bu_e[i].x =WIDTH-1 ;
+        bu_e[i].width = al_get_bitmap_width(bu_e[i].img_b[0]);
+        bu_e[i].height = al_get_bitmap_height(bu_e[i].img_b[0]);
+        if(chara.dir) bu_e[i].x =WIDTH-1 ;
         else bu_e[i].x = 0+1;
-        bu_e[i].y=100*i;
-        if(i%2==1) bu_e[i].dir =false ;
-        else bu_e[i].dir =true;
-        if(i!=1 && i!=5) bu_e[i].active=1;
-        else bu_e[i].active=0;
-    }
-    
-    for(int i=6;i<=7;i++){
-        sprintf(temp,"./image/bu3.jpg");
-        bu_e[i].img_b[0] = al_load_bitmap(temp);
-        bu_e[i].width = WIDTH/40;
-        bu_e[i].height = HEIGHT/5;
-        if(i%2==1) bu_e[i].x =WIDTH-1 ;
-        else bu_e[i].x = 0+1;
-        if(i%2==1)bu_e[i].y=rand()%(HEIGHT/2)+30;
-        else bu_e[i].y=HEIGHT-30-rand()%(HEIGHT/2);
-        if(i%2==1) bu_e[i].dir =false ;
-        else bu_e[i].dir =true;
-        bu_e[i].active=0;
+        bu_e[i].y=chara.y+30;
+        bu_e[i].dir = true;
+        bu_e[i].active=1;
     }
 
     return ;
 
 }
-
 void tool_init(){
     char temp[50];
 
     // load tool's picture
+    for(int i=1;i<=1;i++){
+        sprintf( temp, "./image/malware.png");
+        tl[i].img_t[0] = al_load_bitmap(temp);
+        tl[i].width = al_get_bitmap_width(tl[i].img_t[0]);
+        tl[i].height = al_get_bitmap_height(tl[i].img_t[0]);
+        if(chara.dir) tl[i].x =1 ;
+        else tl[i].x = WIDTH-1;
+        tl[i].y=chara.y+30;
+        tl[i].dir = !(chara.dir);
+        tl[i].active=1;
+    }
 
-        sprintf( temp, "./image/tool%d.png",1);
-        tl[1].img_t[0] = al_load_bitmap(temp);
-        sprintf( temp,"./image/tool%d.jpg",2);
-        tl[2].img_t[0]=al_load_bitmap(temp);
-        sprintf( temp,"./image/tool%d.png",4);
-        tl[4].img_t[0]=al_load_bitmap(temp);
-        
-    tl[1].width =  WIDTH/20;
-    tl[1].height = HEIGHT/20;
-    if(chara.dir) tl[1].x =1 ;
-    else tl[1].x = WIDTH-1;
-    tl[1].y=chara.y+30;
-    tl[1].dir = !(chara.dir);
-    tl[1].active=1;
-
-    tl[2].width =  WIDTH/40;
-    tl[2].height = HEIGHT/15;
-    if(chara.dir) tl[2].x =chara.x+70;
-    else tl[2].x = chara.x+70;
-    tl[2].y=chara.y+20;
-    tl[2].dir = !(chara.dir);
-    tl[2].active=0;
-
-    tl[4].width=WIDTH/20;
-    tl[4].height=HEIGHT/20;
-    if(chara.dir) tl[4].x =1 ;
-    else tl[4].x = WIDTH-1;
-    tl[4].y=rand()%(HEIGHT-60)+30;
-    tl[4].dir = !(chara.dir);
-    tl[4].active=1;
 
 
     return;
 }
-
 
 void all_object_init(){
     tool_init();
@@ -304,15 +231,13 @@ void object_process(ALLEGRO_EVENT event){
 void shot_ene(){//determine whether the enemy has been shot
 
     for(int i=1;i<=4;i++){ // four enemies
-        for(int j=1;j<=27;j++){ // nine main character's bullet
+        for(int j=1;j<=9;j++){ // nine main character's bullet
 
             if(abs( bu_m[j].x-ene[i].x)<40 && abs(bu_m[j].y-ene[i].y)<70 && bu_m[j].active==1 && ene[i].active==1)
             {
-                ene[i].hp--;
-                if(ene[i].hp==0){
-                    ene[i].active=0;
-                    num_of_enemy--; // enemy hide
-                }
+                ene[i].active=1; // enemy hide
+                if(ene[i].dir)ene[i].y=1;
+                else ene[i].y=HEIGHT;
                 bu_m[j].active=0; // bullet hide
 
                 // bullet back to chara
@@ -333,9 +258,9 @@ void shot_ene(){//determine whether the enemy has been shot
 
 void been_shot() //determine whether the main character has been shot
 {
-    for(int i=1;i<=5;i++){ // 1 enemy bullet
+    for(int i=1;i<=1;i++){ // 1 enemy bullet
 
-        if(abs(bu_e[i].x-chara.x)<50&&abs(bu_e[i].y-chara.y)<70&& bu_e[i].active==1)
+        if(abs(bu_e[i].x-chara.x)<50&&abs(bu_e[i].y-chara.y-30)<70&& bu_e[i].active==1)
         {
             bu_e[i].active=1; // bullet hide
             if(chara.dir) bu_e[i].x =WIDTH-1;
@@ -346,41 +271,20 @@ void been_shot() //determine whether the main character has been shot
             return;
         }
     }
-    for(int i=6;i<=7;i++){
-         if(abs(bu_e[i].x-chara.x)<50&&abs(bu_e[i].y+30-chara.y)<70&& bu_e[i].active==1)
-         {
-            bu_e[i].active=1; // bullet hide
-            if(chara.dir) bu_e[i].x =WIDTH-1;
-            else bu_e[i].x = 0+1;
-            if(i%2==1)bu_e[i].y=HEIGHT/2+40-rand()%(HEIGHT/2);
-            else bu_e[i].y=HEIGHT-30-rand()%(HEIGHT/2);
-            bu_e[i].dir = chara.dir;
-            hp--; //health point minus 1
-            return;
-         }
-
-    }
     return ;
 }
 
 void been_cure(){  //determine whether the main character has been cure
-    for(int i=1;i<=4;i++){ // 1 enemy bullet
-        if(i==2) continue ;
-        if(abs(tl[i].x-chara.x)<50&&abs(tl[i].y-chara.y)<70&& tl[i].active==1)
+    for(int i=1;i<=1;i++){ // 1 enemy bullet
+
+        if(abs(tl[i].x-chara.x)<50&&abs(tl[i].y-chara.y-30)<70&& tl[i].active==1)
         {
             tl[i].active=1; // bullet hide
             if(chara.dir) tl[i].x =1;
             else tl[i].x = WIDTH-1;
             tl[i].y=(rand()%(HEIGHT)-30);
             tl[i].dir = chara.dir;
-            if(i==1){
-                if(hp<hp_full) hp++; //health point minus 1
-                else tl[2].active=1;
-            }
-            else if(i==4){
-                chara.mode=1;
-                count2=ti_me+20;
-            }
+            hp++; //health point minus 1
             return;
         }
     }
@@ -388,86 +292,35 @@ void been_cure(){  //determine whether the main character has been cure
 
 }
 
-void bounce(){
-    for(int i=1;i<=5;i++){
-        if(abs(tl[2].x-bu_e[i].x)<50&&abs(tl[2].y-bu_e[i].y)<70&& tl[2].active==1)
-        {
-            tl[2].active=0;
-            bu_e[i].dir=!(bu_e[i].dir);
-        }
-    }
-
-}
-
 void bullet_active(){ // show new bullet
 
     int i=1;
-    if(count2<ti_me){
-            count2=-1;
-            chara.mode=0;
+    while(bu_m[i].active==1 && i<9){ // iterate to the available bullet (bullet that is hidden and not flying)
+        i++;
     }
-    if(chara.mode==0){
-        while(bu_m[i].active==1 && i<9){ // iterate to the available bullet (bullet that is hidden and not flying)
-             i++;
-        }
-        bu_m[i].active=1; // show this bullet,let it start to fly
-    }
-    else if(chara.mode ==1){
-            for(int j=1;j<=3;j++){
-                i=10;
-                while(bu_m[i].active==1 && i<27){ // iterate to the available bullet (bullet that is hidden and not flying)
-                    i++;
-                }
-                bu_m[i].active=1;
-                bu_m[i].state=j-1;
-            }
-    }
-   
+    bu_m[i].active=1; // show this bullet,let it start to fly
     return ;
 }
 
-void ene_bullet_active(int next){
+void ene_active(int next){
     if(next==1){
         for(int i=1;i<=4;i++){
             ene[i].active=1; // when scene upgrade let the hidden enemy be shown,and start to move
-            ene[i].hp=ene[i].hp_full;
-        }
-        for(int i=1;i<=7;i++){
-            bu_e[i].active=1;
         }
     }
     return ;
 }
 
-void object_moving(){  
-    // char built that is not acitve goes with chara  
-    for(int i=1;i<=27;i++){
-        if(bu_m[i].active==0){
-            bu_m[i].x=chara.x;
-            bu_m[i].y=chara.y+20;
-            bu_m[i].dir=chara.dir;
-        }
-    }                                                                                           //remain y moving problem
+void object_moving(){                                                                                               //remain y moving problem
 
      // chara bullets that is active will keep flying
-    for(int i=1;i<=27;i++){
+    for(int i=1;i<=9;i++){
 
-        if(bu_m[i].x>=30&&bu_m[i].x<=WIDTH && bu_m[i].active==1){
-            if(bu_m[i].dir){
-                bu_m[i].x+=20;
-                if(bu_m[i].state==1) bu_m[i].y+=10;
-                else if(bu_m[i].state==2) bu_m[i].y-=10;
-            }
-            else {
-                bu_m[i].x-=20;
-                if(bu_m[i].state==1) bu_m[i].y+=10;
-                 else if(bu_m[i].state==2) bu_m[i].y-=10;
-            }
-            
-            
+        if(bu_m[i].x>30&&bu_m[i].x<WIDTH && bu_m[i].active==1){
+            if(bu_m[i].dir) bu_m[i].x+=40;
+            else bu_m[i].x-=40;
         }
         else if( (bu_m[i].x<30 || bu_m[i].x>WIDTH) && bu_m[i].active==1){
-            bu_m[i].state=0;
             bu_m[i].active=0; // bullet out of screen ,so hide
             bu_m[i].x=chara.x; // bullet back to chara
             bu_m[i].y=chara.y;
@@ -475,49 +328,16 @@ void object_moving(){
         }
     }
 
-    for(int i=10;i<=27;i++){
-
-
-    }
-
     // enemy bullets keep flying
-    for(int i=1;i<=5;i++){
+    for(int i=1;i<=1;i++){
         if(bu_e[i].x>0&&bu_e[i].x<(WIDTH)&& bu_e[i].active==1){
 
             if(bu_e[i].dir) bu_e[i].x+=3;
             else bu_e[i].x-=3;
         }
         else if((bu_e[i].x<=0 || bu_e[i].x>=(WIDTH)) && bu_e[i].active==1){
-            if(bu_e[i].dir){
-                bu_e[i].dir=false;bu_e[i].x=WIDTH-1;
-                if(i>=2 && i<=4)bu_e[i].y=rand()%(200)+((i-1)*100);
-                else bu_e[i].y=i*100;
-            }
-            else {
-                bu_e[i].dir=true;bu_e[i].x=1;
-                if(i>=2 && i<=4) bu_e[i].y=rand()%(200)+((i-1)*100);
-                else bu_e[i].y=i*100;
-            }
-        }
-
-    }
-    for(int i=6;i<=7;i++){
-        if(bu_e[i].x>0&&bu_e[i].x<(WIDTH)&& bu_e[i].active==1){
-
-            if(bu_e[i].dir) bu_e[i].x+=3;
-            else bu_e[i].x-=3;
-        }
-        else if((bu_e[i].x<=0 || bu_e[i].x>=(WIDTH)) && bu_e[i].active==1){
-            if(bu_e[i].dir){
-                bu_e[i].dir=false;bu_e[i].x=WIDTH-1;
-
-
-            }
-            else{
-                 bu_e[i].dir=true;bu_e[i].x=1;
-            }
-            if(i%2==1)bu_e[i].y=rand()%(HEIGHT/2)+30;
-            else bu_e[i].y=HEIGHT-30-rand()%(HEIGHT/2);
+            if(bu_e[i].dir){bu_e[i].dir=false;bu_e[i].x=WIDTH-1;bu_e[i].y=chara.y;}
+            else {bu_e[i].dir=true;bu_e[i].x=1;bu_e[i].y=chara.y;}
         }
 
     }
@@ -536,41 +356,13 @@ void object_moving(){
 
     }
 
-    for(int i=2;i<=2;i++){
-        if(tl[i].y>=0 &&tl[i].y<=(HEIGHT)&& tl[i].active==1){
-            if(chara.dir){
-                tl[i].y=chara.y+10;
-                tl[i].x=chara.x+70;
-            
-            }
-            else{
-                tl[i].y=chara.y+10;
-                tl[i].x=chara.x-30;
-               
-
-            }            
-        }
-    }
-    for(int i=4;i<=4;i++){
-        if(tl[i].x>0&&tl[i].x<(WIDTH)&& tl[i].active==1){
-
-            if(tl[i].dir) tl[i].x+=3;
-            else tl[i].x-=3;
-        }
-        else if((tl[i].x<=0 || tl[i].x>=(WIDTH)) && tl[i].active==1){
-            if(tl[i].dir){tl[i].dir=false;tl[i].x=WIDTH-1;}
-            else {tl[i].dir=true;tl[i].x=1;}
-        }
-
-    }
-
 
     // active enemy go back and forth
     for(int i=1;i<=4;i++){
         if(ene[i].y>0 &&ene[i].y<(HEIGHT)&& ene[i].active==1){
 
-            if(ene[i].dir) ene[i].y+=20/4;
-            else ene[i].y-=20/4;
+            if(ene[i].dir) ene[i].y+=20;
+            else ene[i].y-=20;
         }
          else if((ene[i].y<=0 || ene[i].y>=(HEIGHT)) && ene[i].active==1){
             if(ene[i].dir){ene[i].dir=false;ene[i].y=HEIGHT-1;}
@@ -584,12 +376,12 @@ void object_moving(){
 void interpreting_keys(){
 
     if( key_state[ALLEGRO_KEY_W] ){
-        if(chara.y>-30+chara.height/2+10)
+        if(chara.y>-50)
         chara.y -= 5;
         chara.state = MOVE;
     }
     else if( key_state[ALLEGRO_KEY_S] ){
-        if(chara.y<(HEIGHT-30-chara.height/2))
+        if(chara.y<(HEIGHT-100))
         chara.y += 5;
         chara.state = MOVE;
     }
@@ -615,6 +407,13 @@ void interpreting_keys(){
     }
 
     // bullet that is hidden ,will goes with character
+    for(int i=1;i<=9;i++){
+        if(bu_m[i].active==0){
+            bu_m[i].x=chara.x;
+            bu_m[i].y=chara.y+30;
+            bu_m[i].dir=chara.dir;
+        }
+    }
     return ;
 }
 
@@ -635,8 +434,6 @@ void object_update()
     //see if charater been cure
     been_cure();
 
-    bounce();
-
      // upgrade scene and difficulty
     if((sc%5)==0&&sc>0){
             if(hp<3)
@@ -644,7 +441,7 @@ void object_update()
     }
     //when scene==5 will change background and let hp back to full
 
-    if(sc>5&&next==0){next++;ene_bullet_active(next);}//sc is the score，sc>5 will have two more enemies
+    if(sc>5&&next==0){next++;ene_active(next);}//sc is the score，sc>5 will have two more enemies
 
     // update the movement of things (except the main character)
     object_moving();
@@ -676,47 +473,33 @@ void object_draw(){                                                           //
     al_draw_textf(font1,al_map_rgb_f(1,1,1),750, 1,0,"hp: %d",hp);
     al_draw_textf(font1,al_map_rgb_f(1,1,1),1, 475,0,"time: %d",ti_me);
     al_draw_textf(font1,al_map_rgb_f(1,1,1),650, 475,0,"game props:%d",mt);//計算道具剩餘時間
-    if(count2-ti_me>=0) al_draw_textf(font1,al_map_rgb_f(1,1,1),650, 425,0,"game props:%d",count2-ti_me);//計算道具剩餘時間
     //void al_draw_textf(const ALLEGRO_FONT *font, ALLEGRO_COLOR color,float x, float y, int flags,const char *format, ...)
 
     // draw enemy if active
     for(int i=1;i<=4;i++){
         //printf("%d",ene[2].active);
         if(ene[i].active==1){
-            draw_health_bar(ene[i].x+20,ene[i].y-30,40,10,float(ene[i].hp)/ene[i].hp_full);
             draw_bitmap(ene[i].img_move[0], ene[i].x, ene[i].y,ene[i].width,ene[i].height, 0);
         }
     }
 
     // draw main character and enmy bullets if active
-    for(int i=1;i<=27;i++){
+    for(int i=1;i<=9;i++){
         if(bu_m[i].active==1){
-            if(bu_m[i].dir) {
-                if(bu_m[i].state==0) draw_bitmap(bu_m[i].img_b[0], bu_m[i].x, bu_m[i].y,bu_m[i].width,bu_m[i].height,0);
-                else if(bu_m[i].state==1) draw_bitmap(bu_m[i].img_b[1], bu_m[i].x, bu_m[i].y,bu_m[i].width+10,bu_m[i].height+10,ALLEGRO_FLIP_VERTICAL);
-                else if(bu_m[i].state==2) draw_bitmap(bu_m[i].img_b[1], bu_m[i].x, bu_m[i].y,bu_m[i].width+10,bu_m[i].height+10,0);
-            }
-               
+            if(bu_m[i].dir) draw_bitmap(bu_m[i].img_b[0], bu_m[i].x, bu_m[i].y,bu_m[i].width,bu_m[i].height,0);
 
-            else {
-                if(bu_m[i].state==0) draw_bitmap(bu_m[i].img_b[0], bu_m[i].x, bu_m[i].y,bu_m[i].width,bu_m[i].height, ALLEGRO_FLIP_HORIZONTAL);
-                else if(bu_m[i].state==1)  draw_bitmap(bu_m[i].img_b[1], bu_m[i].x, bu_m[i].y,bu_m[i].width+10,bu_m[i].height+10,ALLEGRO_FLIP_HORIZONTAL+ALLEGRO_FLIP_VERTICAL);
-                else if(bu_m[i].state==2)  draw_bitmap(bu_m[i].img_b[1], bu_m[i].x, bu_m[i].y,bu_m[i].width+10,bu_m[i].height+10,ALLEGRO_FLIP_HORIZONTAL);
-            }
-
-
-
+            else draw_bitmap(bu_m[i].img_b[0], bu_m[i].x, bu_m[i].y,bu_m[i].width,bu_m[i].height, ALLEGRO_FLIP_HORIZONTAL);
 
         }
     }
-    for(int i=1;i<=7;i++){
+    for(int i=1;i<=1;i++){
         if(bu_e[i].active==1){
             if(bu_e[i].dir) draw_bitmap(bu_e[i].img_b[0], bu_e[i].x, bu_e[i].y,bu_e[i].width,bu_e[i].height, 0);
 
             else draw_bitmap(bu_e[i].img_b[0], bu_e[i].x, bu_e[i].y,bu_e[i].width,bu_e[i].height, ALLEGRO_FLIP_HORIZONTAL);
         }
     }
-    for(int i=1;i<=4;i++){
+    for(int i=1;i<=1;i++){
         if(tl[i].active==1){
             if(tl[i].dir) draw_bitmap(tl[i].img_t[0], tl[i].x, tl[i].y,tl[i].width,tl[i].height, 0);
 
@@ -724,8 +507,6 @@ void object_draw(){                                                           //
         }
     }
 
-    
-    draw_health_bar(chara.x+20,chara.y-30,40,10,float(hp)/hp_full);
     // with the state, draw corresponding image
     if( chara.state == STOP ){
         if( chara.dir )
@@ -774,15 +555,13 @@ void object_destroy(){ // destroy created objects
     }
     for(int i=1;i<=4;i++) al_destroy_bitmap(ene[i].img_move[0]);
 
-    for(int i=1;i<=9;i++) al_destroy_bitmap(bu_m[i].img_b[0]);
+    for(int i=1;i<=10;i++) al_destroy_bitmap(bu_m[i].img_b[0]);
 
-    for(int i=1;i<=7;i++) al_destroy_bitmap(bu_e[i].img_b[0]);
+    for(int i=1;i<=1;i++) al_destroy_bitmap(bu_e[i].img_b[0]);
 
-    for(int i=1;i<=2;i++) al_destroy_bitmap(tl[i].img_t[0]);
+    for(int i=1;i<=1;i++) al_destroy_bitmap(tl[i].img_t[0]);
 
     al_destroy_sample_instance(chara.atk_Sound);
-
-
 
     return ;
 

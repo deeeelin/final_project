@@ -10,7 +10,7 @@ ALLEGRO_BITMAP * scoreboard=NULL;
 // function of menu
 void menu_init(){
     font = al_load_ttf_font("./font/normalfont.otf",30,0);
-    menu_background=al_load_bitmap("./image/menu_background.jpeg");
+    menu_background=al_load_bitmap("./image/menu_background.png");
 }
 
 void menu_process(ALLEGRO_EVENT event){
@@ -22,7 +22,7 @@ void menu_process(ALLEGRO_EVENT event){
 void menu_draw(){
     // al_clear_to_color(al_map_rgb(100,100,100));
     al_draw_scaled_bitmap(menu_background,0, 0,al_get_bitmap_width(menu_background),al_get_bitmap_height(menu_background),0, 0,WIDTH,HEIGHT,0);
-    al_draw_text(font, al_map_rgb(255,255,255), WIDTH/2, HEIGHT/2+100 , ALLEGRO_ALIGN_CENTRE, "Press 'Enter' to start");
+    //al_draw_text(font, al_map_rgb(255,255,255), WIDTH/2, HEIGHT/2+100 , ALLEGRO_ALIGN_CENTRE, "Press 'Enter' to start");
     //al_draw_rectangle(WIDTH/2-150, 510, WIDTH/2+150, HEIGHT/2, al_map_rgb(255, 255, 255), 0);
 
 }
@@ -38,8 +38,8 @@ void game_scene_init(){
     all_object_init();
     game_background = al_load_bitmap("./image/stage.jpg");
     game_background_2 = al_load_bitmap("./image/stage2.png");
-    lose = al_load_bitmap("./image/lose.jpg");
-    win= al_load_bitmap("./image/win.jpg");
+    lose = al_load_bitmap("./image/lose.png");
+    win= al_load_bitmap("./image/win.png");
 }
 void re_init_game(){
     sc=0;
@@ -51,8 +51,6 @@ void re_init_game(){
     num_of_enemy=4;
     count_time=0;
     memset(key_state,false,sizeof(key_state));
-    object_destroy();
-    all_object_init();
     return ;
 }
 void scoreboard_init(){
@@ -89,20 +87,20 @@ void re_game_process(int bg){
         al_wait_for_event(event_queue, &event);
         if(bg==1) al_draw_scaled_bitmap(lose,0, 0,al_get_bitmap_width(lose),al_get_bitmap_height(lose),0, 0,WIDTH,HEIGHT,0);
         else if(bg==2) al_draw_scaled_bitmap(win,0, 0,al_get_bitmap_width(win),al_get_bitmap_height(win),0, 0,WIDTH,HEIGHT,0);
-        al_draw_text(font, al_map_rgb(255,0,0), WIDTH/2, HEIGHT/2+100 , ALLEGRO_ALIGN_CENTRE, "Press 'Enter");
+        //al_draw_text(font, al_map_rgb(255,0,0), WIDTH/2, HEIGHT/2+100 , ALLEGRO_ALIGN_CENTRE, "Press 'Enter");
         al_flip_display();
         if( event.type == ALLEGRO_EVENT_KEY_UP){
-            if( event.keyboard.keycode == ALLEGRO_KEY_ENTER)break ;    
+            if( event.keyboard.keycode == ALLEGRO_KEY_ENTER)break ;
         }
     }
 
 
-    while(1){ // show your score 
+    while(1){ // show your score
         ALLEGRO_EVENT event;
         al_wait_for_event(event_queue, &event);
-        // draw your score 
+        // draw your score
         al_draw_scaled_bitmap(scoreboard,0,0,al_get_bitmap_width(scoreboard),al_get_bitmap_height(scoreboard),0, 0,WIDTH,HEIGHT,0);
-        al_draw_text(font, al_map_rgb(255,0,0), WIDTH/2, HEIGHT/2+100 , ALLEGRO_ALIGN_CENTRE, "Press 'Enter' back to menu");
+        al_draw_text(font, al_map_rgb(0,128,0),140, HEIGHT/2+100 , 0, "Press 'Enter' back to menu");
         al_draw_textf(font,al_map_rgb_f(255,0,0),140, 140,0,"your score: %d",sc);
         al_draw_textf(font,al_map_rgb_f(255,0,0),140, 180,0,"recent highest score: %d",max_score);
         al_draw_textf(font,al_map_rgb_f(255,0,0),140, 220,0,"game time: %d",ti_me);
@@ -112,7 +110,7 @@ void re_game_process(int bg){
 
         al_flip_display();
         if( event.type == ALLEGRO_EVENT_KEY_UP){
-            if( event.keyboard.keycode == ALLEGRO_KEY_ENTER)break;    
+            if( event.keyboard.keycode == ALLEGRO_KEY_ENTER)break;
         }
     }
     re_init_game();
@@ -124,7 +122,7 @@ int game_scene_draw(){
     {
           t=1;
           al_draw_scaled_bitmap(lose,0, 0,al_get_bitmap_width(lose),al_get_bitmap_height(lose),0, 0,WIDTH,HEIGHT,0);
-          
+
     }
     else if(sc>=10)
     {

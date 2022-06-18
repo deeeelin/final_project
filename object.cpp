@@ -54,9 +54,8 @@ bullet bu_m[28]={0},bu_e[11]={0};
 
 // define tools
 tool tl[11]={0};
-tool wa[11]={0};
 
-int count2=0;
+int count2=-1;
 ALLEGRO_SAMPLE *sample = NULL;
 
 
@@ -81,6 +80,7 @@ void draw_bitmap(ALLEGRO_BITMAP* var,float x,float y,int width,int height,int fl
      al_draw_scaled_bitmap(var,0, 0,al_get_bitmap_width(var),al_get_bitmap_height(var),x,y,width,height,flags);
      return ;
 }
+
 void font_init(){
      // load font
     font1 = al_load_ttf_font("./font/normalfont.otf",40,0);
@@ -122,8 +122,6 @@ void chara_init(){
 
     return ;
 }
-
-
 
 void ene_init(){
 
@@ -187,10 +185,12 @@ void bullet_init(){
 
     char temp[50];
 
+    
     // load chara bullet's picture
     for(int i=1;i<=27;i++){
         sprintf( temp, "./image/bu%d.png",1);
         bu_m[i].img_b[0] = al_load_bitmap(temp);
+        bu_m[i].img_b[1]=al_load_bitmap("./image/rotated_bu.png");
         bu_m[i].width = WIDTH/30;
         bu_m[i].height = HEIGHT/30;
         bu_m[i].x = chara.x;
@@ -232,6 +232,7 @@ void bullet_init(){
     return ;
 
 }
+
 void tool_init(){
     char temp[50];
 
@@ -264,7 +265,7 @@ void tool_init(){
     tl[4].height=HEIGHT/20;
     if(chara.dir) tl[4].x =1 ;
     else tl[4].x = WIDTH-1;
-    tl[4].y=chara.y+30;
+    tl[4].y=rand()%(HEIGHT-60)+30;
     tl[4].dir = !(chara.dir);
     tl[4].active=1;
 
@@ -364,7 +365,7 @@ void been_shot() //determine whether the main character has been shot
 
 void been_cure(){  //determine whether the main character has been cure
     for(int i=1;i<=4;i++){ // 1 enemy bullet
-
+        if(i==2) continue ;
         if(abs(tl[i].x-chara.x)<50&&abs(tl[i].y-chara.y)<70&& tl[i].active==1)
         {
             tl[i].active=1; // bullet hide
@@ -401,6 +402,10 @@ void bounce(){
 void bullet_active(){ // show new bullet
 
     int i=1;
+    if(count2<ti_me){
+            count2=-1;
+            chara.mode=0;
+    }
     if(chara.mode==0){
         while(bu_m[i].active==1 && i<9){ // iterate to the available bullet (bullet that is hidden and not flying)
              i++;
@@ -408,10 +413,6 @@ void bullet_active(){ // show new bullet
         bu_m[i].active=1; // show this bullet,let it start to fly
     }
     else if(chara.mode ==1){
-        if(count2<ti_me){
-            chara.mode=0;
-        }
-        else{
             for(int j=1;j<=3;j++){
                 i=10;
                 while(bu_m[i].active==1 && i<27){ // iterate to the available bullet (bullet that is hidden and not flying)
@@ -420,9 +421,6 @@ void bullet_active(){ // show new bullet
                 bu_m[i].active=1;
                 bu_m[i].state=j-1;
             }
-             
-        }
-
     }
    
     return ;
@@ -678,6 +676,7 @@ void object_draw(){                                                           //
     al_draw_textf(font1,al_map_rgb_f(1,1,1),750, 1,0,"hp: %d",hp);
     al_draw_textf(font1,al_map_rgb_f(1,1,1),1, 475,0,"time: %d",ti_me);
     al_draw_textf(font1,al_map_rgb_f(1,1,1),650, 475,0,"game props:%d",mt);//計算道具剩餘時間
+    if(count2-ti_me>=0) al_draw_textf(font1,al_map_rgb_f(1,1,1),650, 425,0,"game props:%d",count2-ti_me);//計算道具剩餘時間
     //void al_draw_textf(const ALLEGRO_FONT *font, ALLEGRO_COLOR color,float x, float y, int flags,const char *format, ...)
 
     // draw enemy if active
@@ -692,9 +691,21 @@ void object_draw(){                                                           //
     // draw main character and enmy bullets if active
     for(int i=1;i<=27;i++){
         if(bu_m[i].active==1){
-            if(bu_m[i].dir) draw_bitmap(bu_m[i].img_b[0], bu_m[i].x, bu_m[i].y,bu_m[i].width,bu_m[i].height,0);
+            if(bu_m[i].dir) {
+                if(bu_m[i].state==0) draw_bitmap(bu_m[i].img_b[0], bu_m[i].x, bu_m[i].y,bu_m[i].width,bu_m[i].height,0);
+                else if(bu_m[i].state==1) draw_bitmap(bu_m[i].img_b[1], bu_m[i].x, bu_m[i].y,bu_m[i].width+10,bu_m[i].height+10,ALLEGRO_FLIP_VERTICAL);
+                else if(bu_m[i].state==2) draw_bitmap(bu_m[i].img_b[1], bu_m[i].x, bu_m[i].y,bu_m[i].width+10,bu_m[i].height+10,0);
+            }
+               
 
-            else draw_bitmap(bu_m[i].img_b[0], bu_m[i].x, bu_m[i].y,bu_m[i].width,bu_m[i].height, ALLEGRO_FLIP_HORIZONTAL);
+            else {
+                if(bu_m[i].state==0) draw_bitmap(bu_m[i].img_b[0], bu_m[i].x, bu_m[i].y,bu_m[i].width,bu_m[i].height, ALLEGRO_FLIP_HORIZONTAL);
+                else if(bu_m[i].state==1)  draw_bitmap(bu_m[i].img_b[1], bu_m[i].x, bu_m[i].y,bu_m[i].width+10,bu_m[i].height+10,ALLEGRO_FLIP_HORIZONTAL+ALLEGRO_FLIP_VERTICAL);
+                else if(bu_m[i].state==2)  draw_bitmap(bu_m[i].img_b[1], bu_m[i].x, bu_m[i].y,bu_m[i].width+10,bu_m[i].height+10,ALLEGRO_FLIP_HORIZONTAL);
+            }
+
+
+
 
         }
     }

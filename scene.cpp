@@ -14,11 +14,12 @@ ALLEGRO_SAMPLE *win_sound_sample = NULL;
 //lose sound
 ALLEGRO_SAMPLE_INSTANCE *lose_Sound;
 ALLEGRO_SAMPLE *lose_sound_sample = NULL;
-int no_sound;//record there is no win/lose sound
+int no_sound=1;//record there is no win/lose sound
 // function of menu
 void menu_init(){
     font = al_load_ttf_font("./font/normalfont.otf",30,0);
     menu_background=al_load_bitmap("./image/menu_background.png");
+
 }
 
 void menu_process(ALLEGRO_EVENT event){
@@ -32,6 +33,8 @@ void menu_draw(){
     al_draw_scaled_bitmap(menu_background,0, 0,al_get_bitmap_width(menu_background),al_get_bitmap_height(menu_background),0, 0,WIDTH,HEIGHT,0);
     //al_draw_text(font, al_map_rgb(255,255,255), WIDTH/2, HEIGHT/2+100 , ALLEGRO_ALIGN_CENTRE, "Press 'Enter' to start");
     //al_draw_rectangle(WIDTH/2-150, 510, WIDTH/2+150, HEIGHT/2, al_map_rgb(255, 255, 255), 0);
+    if(no_sound==0)
+        no_sound=1;
 
 }
 

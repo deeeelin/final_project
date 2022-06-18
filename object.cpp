@@ -68,7 +68,7 @@ int touched(int a_x,int a_y,int a_width,int a_height,int b_x,int b_y,int b_width
 }
 
 // (x,y)=health bar left up corner position,percent=health percentage
-void draw_health_bar(int x,int y,int width,int height,float percent){
+void draw_health_bar(float x,float y,int width,int height,float percent){
 
     al_draw_rectangle(x,y,x+width,y+height,al_map_rgb(0,0,0),2);
     if(percent!=0) al_draw_filled_rectangle(x+1,y+1,x+(width*percent)-1,y+height-1,al_map_rgb(255,0,0));
@@ -76,7 +76,7 @@ void draw_health_bar(int x,int y,int width,int height,float percent){
 
 }
 
-void draw_bitmap(ALLEGRO_BITMAP* var,int x,int y,int width,int height,int flags){
+void draw_bitmap(ALLEGRO_BITMAP* var,float x,float y,int width,int height,int flags){
 
      al_draw_scaled_bitmap(var,0, 0,al_get_bitmap_width(var),al_get_bitmap_height(var),x,y,width,height,flags);
      return ;
@@ -197,6 +197,7 @@ void bullet_init(){
         bu_m[i].y=chara.y+20;
         bu_m[i].dir = chara.dir;
         bu_m[i].active=0;
+        bu_m[i].state=0;
     }
 
     // load enemy bullet's(bomb) picture,there are only one recently
@@ -240,7 +241,7 @@ void tool_init(){
         tl[1].img_t[0] = al_load_bitmap(temp);
         sprintf( temp,"./image/tool%d.jpg",2);
         tl[2].img_t[0]=al_load_bitmap(temp);
-        sprintf( temp,"./image/tool%d.jpg",4);
+        sprintf( temp,"./image/tool%d.png",4);
         tl[4].img_t[0]=al_load_bitmap(temp);
         
     tl[1].width =  WIDTH/20;
@@ -400,15 +401,15 @@ void bounce(){
 void bullet_active(){ // show new bullet
 
     int i=1;
-    if(mode==0){
+    if(chara.mode==0){
         while(bu_m[i].active==1 && i<9){ // iterate to the available bullet (bullet that is hidden and not flying)
              i++;
         }
         bu_m[i].active=1; // show this bullet,let it start to fly
     }
-    else if(mode ==1){
+    else if(chara.mode ==1){
         if(count2<ti_me){
-            mode=0;
+            chara.mode=0;
         }
         else{
             for(int j=1;j<=3;j++){
@@ -417,6 +418,7 @@ void bullet_active(){ // show new bullet
                     i++;
                 }
                 bu_m[i].active=1;
+                bu_m[i].state=j-1;
             }
              
         }
@@ -440,7 +442,7 @@ void ene_bullet_active(int next){
 }
 
 void object_moving(){  
-    // char bullt that is not acitve goes with chara  
+    // char built that is not acitve goes with chara  
     for(int i=1;i<=27;i++){
         if(bu_m[i].active==0){
             bu_m[i].x=chara.x;
@@ -450,13 +452,24 @@ void object_moving(){
     }                                                                                           //remain y moving problem
 
      // chara bullets that is active will keep flying
-    for(int i=1;i<=9;i++){
+    for(int i=1;i<=27;i++){
 
         if(bu_m[i].x>=30&&bu_m[i].x<=WIDTH && bu_m[i].active==1){
-            if(bu_m[i].dir) bu_m[i].x+=20;
-            else bu_m[i].x-=20;
+            if(bu_m[i].dir){
+                bu_m[i].x+=20;
+                if(bu_m[i].state==1) bu_m[i].y+=10;
+                else if(bu_m[i].state==2) bu_m[i].y-=10;
+            }
+            else {
+                bu_m[i].x-=20;
+                if(bu_m[i].state==1) bu_m[i].y+=10;
+                 else if(bu_m[i].state==2) bu_m[i].y-=10;
+            }
+            
+            
         }
         else if( (bu_m[i].x<30 || bu_m[i].x>WIDTH) && bu_m[i].active==1){
+            bu_m[i].state=0;
             bu_m[i].active=0; // bullet out of screen ,so hide
             bu_m[i].x=chara.x; // bullet back to chara
             bu_m[i].y=chara.y;
@@ -526,17 +539,29 @@ void object_moving(){
     }
 
     for(int i=2;i<=2;i++){
-        if(tl[i].y>0 &&tl[i].y<(HEIGHT)&& tl[i].active==1){
+        if(tl[i].y>=0 &&tl[i].y<=(HEIGHT)&& tl[i].active==1){
             if(chara.dir){
                 tl[i].y=chara.y+10;
                 tl[i].x=chara.x+70;
             }
             else{
                 tl[i].y=chara.y+10;
-                tl[i].x=chara.x-10;
+                tl[i].x=chara.x-30;
 
             }            
         }
+    }
+    for(int i=4;i<=4;i++){
+        if(tl[i].x>0&&tl[i].x<(WIDTH)&& tl[i].active==1){
+
+            if(tl[i].dir) tl[i].x+=3;
+            else tl[i].x-=3;
+        }
+        else if((tl[i].x<=0 || tl[i].x>=(WIDTH)) && tl[i].active==1){
+            if(tl[i].dir){tl[i].dir=false;tl[i].x=WIDTH-1;}
+            else {tl[i].dir=true;tl[i].x=1;}
+        }
+
     }
 
 
@@ -678,19 +703,14 @@ void object_draw(){                                                           //
             else draw_bitmap(bu_e[i].img_b[0], bu_e[i].x, bu_e[i].y,bu_e[i].width,bu_e[i].height, ALLEGRO_FLIP_HORIZONTAL);
         }
     }
-    for(int i=1;i<=1;i++){
+    for(int i=1;i<=4;i++){
         if(tl[i].active==1){
             if(tl[i].dir) draw_bitmap(tl[i].img_t[0], tl[i].x, tl[i].y,tl[i].width,tl[i].height, 0);
 
             else draw_bitmap(tl[i].img_t[0], tl[i].x, tl[i].y,tl[i].width,tl[i].height, ALLEGRO_FLIP_HORIZONTAL);
         }
     }
-    for(int i=2;i<=2;i++){
-        if(tl[i].active==1){
-            if(chara.dir) draw_bitmap(tl[i].img_t[0], tl[i].x, tl[i].y,tl[i].width,tl[i].height, 0);
-            else  draw_bitmap(tl[i].img_t[0], tl[i].x, tl[i].y,tl[i].width,tl[i].height, ALLEGRO_FLIP_HORIZONTAL);
-        }
-    }
+
     
     draw_health_bar(chara.x+20,chara.y-30,40,10,float(hp)/hp_full);
     // with the state, draw corresponding image

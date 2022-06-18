@@ -543,10 +543,12 @@ void object_moving(){
             if(chara.dir){
                 tl[i].y=chara.y+10;
                 tl[i].x=chara.x+70;
+            
             }
             else{
                 tl[i].y=chara.y+10;
                 tl[i].x=chara.x-30;
+               
 
             }            
         }

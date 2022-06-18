@@ -1,3 +1,4 @@
+#include "object.h"
 #include "scene.h"
 
 ALLEGRO_FONT *font = NULL;
@@ -7,6 +8,13 @@ ALLEGRO_BITMAP *menu_background = NULL;
 ALLEGRO_BITMAP *win = NULL;
 ALLEGRO_BITMAP *lose= NULL;
 ALLEGRO_BITMAP * scoreboard=NULL;
+//win sound
+ALLEGRO_SAMPLE_INSTANCE *win_Sound;
+ALLEGRO_SAMPLE *win_sound_sample = NULL;
+//lose sound
+ALLEGRO_SAMPLE_INSTANCE *lose_Sound;
+ALLEGRO_SAMPLE *lose_sound_sample = NULL;
+int no_sound;//record there is no win/lose sound
 // function of menu
 void menu_init(){
     font = al_load_ttf_font("./font/normalfont.otf",30,0);
@@ -40,6 +48,18 @@ void game_scene_init(){
     game_background_2 = al_load_bitmap("./image/stage2.png");
     lose = al_load_bitmap("./image/lose.png");
     win= al_load_bitmap("./image/win.png");
+    //win sound init
+    win_sound_sample = al_load_sample("./sound/win.wav");
+    win_Sound  = al_create_sample_instance(win_sound_sample);
+    al_set_sample_instance_playmode( win_Sound, ALLEGRO_PLAYMODE_ONCE);
+    al_attach_sample_instance_to_mixer(win_Sound, al_get_default_mixer());
+    //lose sound init
+    lose_sound_sample = al_load_sample("./sound/lose.wav");
+    lose_Sound  = al_create_sample_instance(lose_sound_sample);
+    al_set_sample_instance_playmode( lose_Sound, ALLEGRO_PLAYMODE_ONCE);
+    al_attach_sample_instance_to_mixer(lose_Sound, al_get_default_mixer());
+    //no win/lose sound now
+    no_sound=1;
 }
 void re_init_game(){
     sc=0;
@@ -122,12 +142,23 @@ int game_scene_draw(){
     {
           t=1;
           al_draw_scaled_bitmap(lose,0, 0,al_get_bitmap_width(lose),al_get_bitmap_height(lose),0, 0,WIDTH,HEIGHT,0);
+          if(no_sound)
+          {
+             al_play_sample_instance(lose_Sound);
+             no_sound=0;
+          }
 
     }
     else if(sc>=10)
     {
         t=2;
          al_draw_scaled_bitmap(win,0, 0,al_get_bitmap_width(win),al_get_bitmap_height(win),0, 0,WIDTH,HEIGHT,0);
+         if(no_sound)
+         {
+             al_play_sample_instance(win_Sound);
+             no_sound=0;
+         }
+
     }
     else if(sc<5)
     {

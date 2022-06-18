@@ -358,8 +358,8 @@ void been_cure(){  //determine whether the main character has been cure
             else tl[i].x = WIDTH-1;
             tl[i].y=(rand()%(HEIGHT)-30);
             tl[i].dir = chara.dir;
-            hp++; //health point minus 1
-            tl[2].active=1;
+            if(hp<hp_full) hp++; //health point minus 1
+            else tl[2].active=1;
             return;
         }
     }
@@ -390,8 +390,9 @@ void bullet_active(){ // show new bullet
 
 void ene_bullet_active(int next){
     if(next==1){
-        for(int i=1;i<4;i++){
+        for(int i=1;i<=4;i++){
             ene[i].active=1; // when scene upgrade let the hidden enemy be shown,and start to move
+            ene[i].hp=ene[i].hp_full;
         }
         for(int i=1;i<=7;i++){
             bu_e[i].active=1;
@@ -500,8 +501,8 @@ void object_moving(){
     for(int i=1;i<=4;i++){
         if(ene[i].y>0 &&ene[i].y<(HEIGHT)&& ene[i].active==1){
 
-            if(ene[i].dir) ene[i].y+=20;
-            else ene[i].y-=20;
+            if(ene[i].dir) ene[i].y+=20/4;
+            else ene[i].y-=20/4;
         }
          else if((ene[i].y<=0 || ene[i].y>=(HEIGHT)) && ene[i].active==1){
             if(ene[i].dir){ene[i].dir=false;ene[i].y=HEIGHT-1;}
@@ -697,15 +698,15 @@ void object_destroy(){ // destroy created objects
     }
     for(int i=1;i<=4;i++) al_destroy_bitmap(ene[i].img_move[0]);
 
-    for(int i=1;i<=10;i++) al_destroy_bitmap(bu_m[i].img_b[0]);
+    for(int i=1;i<=9;i++) al_destroy_bitmap(bu_m[i].img_b[0]);
 
-    for(int i=1;i<=1;i++) al_destroy_bitmap(bu_e[i].img_b[0]);
-
-    for(int i=1;i<=1;i++) al_destroy_bitmap(tl[i].img_t[0]);
+    for(int i=1;i<=7;i++) al_destroy_bitmap(bu_e[i].img_b[0]);
 
     for(int i=1;i<=2;i++) al_destroy_bitmap(tl[i].img_t[0]);
 
     al_destroy_sample_instance(chara.atk_Sound);
+
+
 
     return ;
 

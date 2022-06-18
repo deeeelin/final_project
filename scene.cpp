@@ -51,6 +51,8 @@ void re_init_game(){
     num_of_enemy=4;
     count_time=0;
     memset(key_state,false,sizeof(key_state));
+    object_destroy();
+    all_object_init();
     return ;
 }
 void scoreboard_init(){

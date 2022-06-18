@@ -206,7 +206,8 @@ void bullet_init(){
         bu_e[i].y=100*i;
         if(i%2==1) bu_e[i].dir =false ;
         else bu_e[i].dir =true;
-        bu_e[i].active=1;
+        if(i!=1 && i!=5) bu_e[i].active=1;
+        else bu_e[i].active=0;
     }
     
     for(int i=6;i<=7;i++){
@@ -216,10 +217,11 @@ void bullet_init(){
         bu_e[i].height = HEIGHT/5;
         if(i%2==1) bu_e[i].x =WIDTH-1 ;
         else bu_e[i].x = 0+1;
-        bu_e[i].y=chara.y;
+        if(i%2==1)bu_e[i].y=rand()%(HEIGHT/2)+30;
+        else bu_e[i].y=HEIGHT-30-rand()%(HEIGHT/2);
         if(i%2==1) bu_e[i].dir =false ;
         else bu_e[i].dir =true;
-        bu_e[i].active=1;
+        bu_e[i].active=0;
     }
 
     return ;
@@ -330,7 +332,7 @@ void been_shot() //determine whether the main character has been shot
         }
     }
     for(int i=6;i<=7;i++){
-         if(abs(bu_e[i].x-chara.x)<50&&abs(bu_e[i].y-chara.y)<70&& bu_e[i].active==1)
+         if(abs(bu_e[i].x-chara.x)<50&&abs(bu_e[i].y+30-chara.y)<70&& bu_e[i].active==1)
          {
             bu_e[i].active=1; // bullet hide
             if(chara.dir) bu_e[i].x =WIDTH-1;
@@ -386,10 +388,13 @@ void bullet_active(){ // show new bullet
     return ;
 }
 
-void ene_active(int next){
+void ene_bullet_active(int next){
     if(next==1){
-        for(int i=1;i<=4;i++){
+        for(int i=1;i<4;i++){
             ene[i].active=1; // when scene upgrade let the hidden enemy be shown,and start to move
+        }
+        for(int i=1;i<=7;i++){
+            bu_e[i].active=1;
         }
     }
     return ;
@@ -408,7 +413,7 @@ void object_moving(){
      // chara bullets that is active will keep flying
     for(int i=1;i<=9;i++){
 
-        if(bu_m[i].x>30&&bu_m[i].x<WIDTH && bu_m[i].active==1){
+        if(bu_m[i].x>=30&&bu_m[i].x<=WIDTH && bu_m[i].active==1){
             if(bu_m[i].dir) bu_m[i].x+=20;
             else bu_m[i].x-=20;
         }
@@ -456,6 +461,8 @@ void object_moving(){
             else{
                  bu_e[i].dir=true;bu_e[i].x=1;
             }
+            if(i%2==1)bu_e[i].y=rand()%(HEIGHT/2)+30;
+            else bu_e[i].y=HEIGHT-30-rand()%(HEIGHT/2);
         }
 
     }
@@ -568,7 +575,7 @@ void object_update()
     }
     //when scene==5 will change background and let hp back to full
 
-    if(sc>5&&next==0){next++;ene_active(next);}//sc is the score，sc>5 will have two more enemies
+    if(sc>5&&next==0){next++;ene_bullet_active(next);}//sc is the score，sc>5 will have two more enemies
 
     // update the movement of things (except the main character)
     object_moving();

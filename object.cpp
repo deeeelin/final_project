@@ -613,23 +613,26 @@ void interpreting_keys(){
     if( key_state[ALLEGRO_KEY_W] ){
         if(chara.y>-30+chara.height/2+10)
         chara.y -= 5;
-        chara.state = MOVE;
+        
+         chara.state = MOVE;
     }
     else if( key_state[ALLEGRO_KEY_S] ){
         if(chara.y<(HEIGHT-30-chara.height/2))
         chara.y += 5;
-        chara.state = MOVE;
+        
+         chara.state = MOVE;
     }
     if( key_state[ALLEGRO_KEY_A] ){
         chara.dir = false;
         //chara.x -= 5;
-        chara.state = MOVE;
+        chara.state = STOP;
     }
     else if( key_state[ALLEGRO_KEY_D] ){
         chara.dir = true;
         //chara.x += 5;
-        chara.state = MOVE;
+        chara.state = STOP;
     }
+
     if( key_state[ALLEGRO_KEY_SPACE] ){
         chara.state = ATK;
         bullet_active(); // if space is pressed ,then active a new bullet
@@ -640,6 +643,9 @@ void interpreting_keys(){
 
         key_state[ALLEGRO_KEY_SPACE]=false; // if you dont add this,then when you long-press key space ,it will be continous shooting
     }
+
+    
+
 
     // bullet that is hidden ,will goes with character
     return ;

@@ -8,6 +8,7 @@ ALLEGRO_EVENT_QUEUE *event_queue = NULL;
 ALLEGRO_TIMER *fps = NULL;
 bool key_state[ALLEGRO_KEY_MAX] = {false};
 bool judge_next_window = false;
+bool re_init=false;
 int sc=0;
 int hp=5;
 int hp_full=5;

@@ -13,3 +13,5 @@ void scoreboard_init();
 int choose_chara_process(ALLEGRO_EVENT event);
 void choose_chara_draw();
 void choose_chara_init();
+void choose_chara_process_destroy();
+void scoreboard_destroy();

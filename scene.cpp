@@ -83,9 +83,15 @@ void re_init_game(){
     return ;
 }
 void scoreboard_init(){
+    font = al_load_ttf_font("./font/normalfont.otf",30,0);
     scoreboard=al_load_bitmap("./image/images.jpeg");
     return ;
 }
+void scoreboard_destroy(){
+    al_destroy_font(font);
+    al_destroy_bitmap(scoreboard);
+}
+
 void re_game_process(int bg){
 
     FILE * fp,*fpw;
@@ -122,8 +128,7 @@ void re_game_process(int bg){
             if( event.keyboard.keycode == ALLEGRO_KEY_ENTER)break ;
         }
     }
-
-
+    scoreboard_init();
     while(1){ // show your score
         ALLEGRO_EVENT event;
         al_wait_for_event(event_queue, &event);
@@ -142,6 +147,7 @@ void re_game_process(int bg){
             if( event.keyboard.keycode == ALLEGRO_KEY_ENTER)break;
         }
     }
+    scoreboard_destroy();
     re_init_game();
 }
 
@@ -182,7 +188,14 @@ void choose_chara_draw(){
      al_draw_textf(font,al_map_rgb_f(255,1,1),WIDTH/2, HEIGHT/2+100,0,"choose your character");
 }
 
-
+void choose_chara_process_destroy(){
+    al_destroy_bitmap(choose_chara_background);
+    al_destroy_font(font);
+    for(int i=1;i<=2;i++){
+        al_destroy_bitmap(chara_to_choose[i]);
+    }
+    return ;
+}
 
 
 int game_scene_draw(){

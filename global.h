@@ -31,4 +31,5 @@ extern int mt;
 extern int count_time;
 extern int num_of_background; //(num_of_enemy didn't use)
 extern int choose_num;
+extern bool re_init ;
 #endif

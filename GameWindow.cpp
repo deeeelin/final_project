@@ -3,6 +3,7 @@
 bool draw = false;
 int window = 1;
 int temp=0;
+int y=0;
 bool not_first_round=false;
 const char *title = "Final Project: I am a shooter";
 
@@ -69,15 +70,11 @@ void game_begin() {
     al_restore_default_mixer();
     al_attach_sample_instance_to_mixer(sample_instance, al_get_default_mixer());
     // set the volume of instance
-    al_set_sample_instance_gain(sample_instance, 1) ;
+    al_set_sample_instance_gain(sample_instance,1) ;
     al_play_sample_instance(sample_instance);
     al_start_timer(fps);
     // initialize the menu before entering the loop
     menu_init();
-    scoreboard_init();
-    choose_chara_init();
-    
-
 }
 
 void game_update(){
@@ -86,6 +83,8 @@ void game_update(){
             // not back menu anymore, therefore destroy it
            // menu_destroy();
             // initialize next scene
+            menu_destroy();
+            choose_chara_init();
             judge_next_window = false;
             window = 4;
         }
@@ -93,10 +92,15 @@ void game_update(){
     if( window == 2 ){
         object_update();
     }
+    if(re_init){
     
-
-
-
+        re_game_process(temp);
+        game_scene_destroy();
+        menu_init();
+        window=1;
+        re_init=false;
+    }
+    
 }
 
 int process_event(){
@@ -110,16 +114,14 @@ int process_event(){
         object_process(event);
     }
     else if(window == 3){
-
-        re_game_process(temp);
         
+        re_init=true;
         not_first_round=true;
-        window=1;
     }
     else if(window==4){
         if(choose_chara_process(event)==1){
-            if(!not_first_round)game_scene_init();
-            else (all_object_init());
+            choose_chara_process_destroy();
+            game_scene_init();
             window=2;
         }
     }

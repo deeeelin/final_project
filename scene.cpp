@@ -240,16 +240,13 @@ int game_scene_draw(){
 
 
 void game_scene_destroy(){
-    al_destroy_bitmap(menu_background);
     al_destroy_bitmap(game_background);
     al_destroy_bitmap(game_background_2);
-    al_destroy_bitmap( scoreboard);
     al_destroy_bitmap(win);
     al_destroy_bitmap(lose);
     al_destroy_sample_instance(win_Sound);
     al_destroy_sample_instance(lose_Sound);
     object_destroy();
-    menu_destroy();
 
 
 }

@@ -726,15 +726,15 @@ void object_draw(){                                                           //
         if(bu_m[i].active==1){
             if(bu_m[i].dir) {
                 if(bu_m[i].state==0) draw_bitmap(bu_m[i].img_b[0], bu_m[i].x, bu_m[i].y,bu_m[i].width,bu_m[i].height,0);
-                else if(bu_m[i].state==1) draw_bitmap(bu_m[i].img_b[1], bu_m[i].x, bu_m[i].y,bu_m[i].width+10,bu_m[i].height+10,ALLEGRO_FLIP_VERTICAL);
-                else if(bu_m[i].state==2) draw_bitmap(bu_m[i].img_b[1], bu_m[i].x, bu_m[i].y,bu_m[i].width+10,bu_m[i].height+10,0);
+                else if(bu_m[i].state==1) draw_bitmap(bu_m[i].img_b[1], bu_m[i].x, bu_m[i].y,bu_m[i].width,bu_m[i].height,ALLEGRO_FLIP_VERTICAL);
+                else if(bu_m[i].state==2) draw_bitmap(bu_m[i].img_b[1], bu_m[i].x, bu_m[i].y,bu_m[i].width,bu_m[i].height,0);
             }
 
 
             else {
                 if(bu_m[i].state==0) draw_bitmap(bu_m[i].img_b[0], bu_m[i].x, bu_m[i].y,bu_m[i].width,bu_m[i].height, ALLEGRO_FLIP_HORIZONTAL);
-                else if(bu_m[i].state==1)  draw_bitmap(bu_m[i].img_b[1], bu_m[i].x, bu_m[i].y,bu_m[i].width+10,bu_m[i].height+10,ALLEGRO_FLIP_HORIZONTAL+ALLEGRO_FLIP_VERTICAL);
-                else if(bu_m[i].state==2)  draw_bitmap(bu_m[i].img_b[1], bu_m[i].x, bu_m[i].y,bu_m[i].width+10,bu_m[i].height+10,ALLEGRO_FLIP_HORIZONTAL);
+                else if(bu_m[i].state==1)  draw_bitmap(bu_m[i].img_b[1], bu_m[i].x, bu_m[i].y,bu_m[i].width,bu_m[i].height,ALLEGRO_FLIP_HORIZONTAL+ALLEGRO_FLIP_VERTICAL);
+                else if(bu_m[i].state==2)  draw_bitmap(bu_m[i].img_b[1], bu_m[i].x, bu_m[i].y,bu_m[i].width,bu_m[i].height,ALLEGRO_FLIP_HORIZONTAL);
             }
 
 

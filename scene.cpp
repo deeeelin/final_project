@@ -155,7 +155,7 @@ void choose_chara_init(){
     char temp[30];
     font = al_load_ttf_font("./font/normalfont.otf",30,0);
     choose_chara_background=al_load_bitmap("./image/choose_chara_background.jpg");
-    for(int i=1;i<=3;i++){
+    for(int i=1;i<=4;i++){
         sprintf(temp,"./image/%dchar_show.png",i);
         chara_to_choose[i]=al_load_bitmap(temp);
     }
@@ -167,7 +167,7 @@ int choose_chara_process(ALLEGRO_EVENT event){
         if( event.keyboard.keycode == ALLEGRO_KEY_LEFT && choose_num>1){
             choose_num--;
         }
-        else if( event.keyboard.keycode == ALLEGRO_KEY_RIGHT && choose_num<3){
+        else if( event.keyboard.keycode == ALLEGRO_KEY_RIGHT && choose_num<4){
             
             choose_num++;
         }
@@ -191,7 +191,7 @@ void choose_chara_draw(){
 void choose_chara_process_destroy(){
     al_destroy_bitmap(choose_chara_background);
     al_destroy_font(font);
-    for(int i=1;i<=3;i++){
+    for(int i=1;i<=4;i++){
         al_destroy_bitmap(chara_to_choose[i]);
     }
     return ;

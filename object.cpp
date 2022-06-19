@@ -1,5 +1,7 @@
 #include "object.h"
 #include "scene.h"
+ALLEGRO_SAMPLE_INSTANCE *explode_Sound;
+ALLEGRO_SAMPLE *explode = NULL;
 
 typedef struct character
 {
@@ -87,6 +89,17 @@ void font_init(){
     font1 = al_load_ttf_font("./font/normalfont.otf",40,0);
     return ;
 }
+void been_shot_sound_init()
+{
+
+
+    explode = al_load_sample("./sound/beenshot.wav");
+
+    explode_Sound  = al_create_sample_instance(explode);
+    al_set_sample_instance_playmode(explode_Sound, ALLEGRO_PLAYMODE_ONCE);
+    al_attach_sample_instance_to_mixer(explode_Sound, al_get_default_mixer());
+}
+
 
 void chara_init(){
 
@@ -180,7 +193,7 @@ void sound_init(){
     chara.atk_Sound  = al_create_sample_instance(sample);
     al_set_sample_instance_playmode(chara.atk_Sound, ALLEGRO_PLAYMODE_ONCE);
     al_attach_sample_instance_to_mixer(chara.atk_Sound, al_get_default_mixer());
-
+    been_shot_sound_init();
     return ;
 }
 // initialize main character's bullets and enemy bullets
@@ -374,6 +387,7 @@ void been_shot() //determine whether the main character has been shot
             bu_e[i].y=chara.y;
             bu_e[i].dir = chara.dir;
             hp--; //health point minus 1
+            al_play_sample_instance(explode_Sound);
             return;
         }
     }
@@ -387,6 +401,7 @@ void been_shot() //determine whether the main character has been shot
             else bu_e[i].y=HEIGHT-30-rand()%(HEIGHT/2);
             bu_e[i].dir = chara.dir;
             hp--; //health point minus 1
+            al_play_sample_instance(explode_Sound);
             return;
          }
 
@@ -622,14 +637,14 @@ void interpreting_keys(){
         chara.y -= 5;
         count3=-1;
         chara.state = MOVE;
-         
+
     }
     else if( key_state[ALLEGRO_KEY_S] ){
         if(chara.y<(HEIGHT-30-chara.height/2))
         chara.y += 5;
         count3=-1;
          chara.state = MOVE;
-         
+
     }
     if( key_state[ALLEGRO_KEY_A] ){
         chara.dir = false;
@@ -656,7 +671,7 @@ void interpreting_keys(){
         key_state[ALLEGRO_KEY_SPACE]=false; // if you dont add this,then when you long-press key space ,it will be continous shooting
     }
 
-    
+
 
 
     // bullet that is hidden ,will goes with character
@@ -682,11 +697,7 @@ void object_update()
 
     bounce();
 
-     // upgrade scene and difficulty
-    if((sc%5)==0&&sc>0){
-            if(hp<3)
-            hp=3;
-    }
+
     //when scene==5 will change background and let hp back to full
 
     if(sc>5&&next==0){next++;ene_bullet_active(next);}//sc is the score，sc>5 will have two more enemies
@@ -698,7 +709,7 @@ void object_update()
     interpreting_keys();
 
     // about main charater's anime settings
-    
+
     return;
 
 }
@@ -821,7 +832,7 @@ void object_destroy(){ // destroy created objects
 
     al_destroy_sample_instance(chara.atk_Sound);
 
-
+     al_destroy_sample_instance(explode_Sound);
 
     return ;
 

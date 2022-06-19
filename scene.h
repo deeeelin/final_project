@@ -10,3 +10,6 @@ void game_scene_init();
 int game_scene_draw();
 void game_scene_destroy();
 void scoreboard_init();
+int choose_chara_process(ALLEGRO_EVENT event);
+void choose_chara_draw();
+void choose_chara_init();

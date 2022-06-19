@@ -4,6 +4,7 @@
         "chrono": "cpp",
         "complex": "cpp",
         "iterator": "cpp",
-        "random": "cpp"
+        "random": "cpp",
+        "ios": "cpp"
     }
 }

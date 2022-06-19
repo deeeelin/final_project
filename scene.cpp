@@ -5,6 +5,8 @@ ALLEGRO_FONT *font = NULL;
 ALLEGRO_BITMAP *game_background = NULL;
 ALLEGRO_BITMAP *game_background_2 = NULL;
 ALLEGRO_BITMAP *menu_background = NULL;
+ALLEGRO_BITMAP *choose_chara_background=NULL;
+ALLEGRO_BITMAP *chara_to_choose[3];
 ALLEGRO_BITMAP *win = NULL;
 ALLEGRO_BITMAP *lose= NULL;
 ALLEGRO_BITMAP * scoreboard=NULL;
@@ -15,6 +17,9 @@ ALLEGRO_SAMPLE *win_sound_sample = NULL;
 ALLEGRO_SAMPLE_INSTANCE *lose_Sound;
 ALLEGRO_SAMPLE *lose_sound_sample = NULL;
 int no_sound=1;//record there is no win/lose sound
+
+
+
 // function of menu
 void menu_init(){
     font = al_load_ttf_font("./font/normalfont.otf",30,0);
@@ -73,6 +78,7 @@ void re_init_game(){
     num_of_background=0;
     num_of_enemy=4;
     count_time=0;
+    choose_num=1;
     memset(key_state,false,sizeof(key_state));
     return ;
 }
@@ -138,6 +144,46 @@ void re_game_process(int bg){
     }
     re_init_game();
 }
+
+void choose_chara_init(){
+    char temp[30];
+    font = al_load_ttf_font("./font/normalfont.otf",30,0);
+    choose_chara_background=al_load_bitmap("./image/choose_chara_background.jpg");
+    for(int i=1;i<=2;i++){
+        sprintf(temp,"./image/%dchar_move1.png",i);
+        chara_to_choose[i]=al_load_bitmap(temp);
+    }
+    return ;
+
+}
+int choose_chara_process(ALLEGRO_EVENT event){
+     if( event.type == ALLEGRO_EVENT_KEY_UP ){
+        if( event.keyboard.keycode == ALLEGRO_KEY_LEFT && choose_num>1){
+            choose_num--;
+        }
+        else if( event.keyboard.keycode == ALLEGRO_KEY_RIGHT && choose_num<2){
+            
+            choose_num++;
+        }
+        else if(event.keyboard.keycode == ALLEGRO_KEY_C){
+            return 1;
+        }
+     }
+     
+    return 0;
+            
+
+}
+
+void choose_chara_draw(){
+    // draw background
+     al_draw_scaled_bitmap(choose_chara_background,0, 0,al_get_bitmap_width(choose_chara_background),al_get_bitmap_height(choose_chara_background),0, 0,WIDTH,HEIGHT,0);
+     draw_bitmap(chara_to_choose[choose_num],WIDTH/2,HEIGHT/2,100,100,0);
+     al_draw_textf(font,al_map_rgb_f(255,1,1),WIDTH/2, HEIGHT/2+100,0,"choose your character");
+}
+
+
+
 
 int game_scene_draw(){
     int t=0;

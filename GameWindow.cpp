@@ -75,6 +75,8 @@ void game_begin() {
     // initialize the menu before entering the loop
     menu_init();
     scoreboard_init();
+    choose_chara_init();
+    
 
 }
 
@@ -84,15 +86,15 @@ void game_update(){
             // not back menu anymore, therefore destroy it
            // menu_destroy();
             // initialize next scene
-            if(!not_first_round)game_scene_init();
-            else (all_object_init());
             judge_next_window = false;
-            window = 2;
+            window = 4;
         }
     }
     if( window == 2 ){
         object_update();
     }
+    
+
 
 
 }
@@ -113,6 +115,13 @@ int process_event(){
         
         not_first_round=true;
         window=1;
+    }
+    else if(window==4){
+        if(choose_chara_process(event)==1){
+            if(!not_first_round)game_scene_init();
+            else (all_object_init());
+            window=2;
+        }
     }
 
     // Shutdown our program
@@ -135,6 +144,9 @@ void game_draw(){
         if(temp>0) {
             window=3;
         }
+    }
+    else if(window==4){
+        choose_chara_draw();
     }
     al_flip_display();
 }

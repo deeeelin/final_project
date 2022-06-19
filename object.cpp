@@ -9,6 +9,7 @@ typedef struct character
     int state; // the state of character
     ALLEGRO_BITMAP *img_move[2];
     ALLEGRO_BITMAP *img_atk[2];
+     ALLEGRO_BITMAP *img_stop[2];
     ALLEGRO_SAMPLE_INSTANCE *atk_Sound;
     int anime; // counting the time of animation
     int anime_time; // indicate how long the animation
@@ -95,12 +96,14 @@ void chara_init(){
     for(int i = 1 ; i <=2 ; i++){
 
          // load character images
-        sprintf( temp, "./image/char_move%d.png", i );
+        sprintf( temp, "./image/%dchar_move%d.png", choose_num,i );
         chara.img_move[i-1] = al_load_bitmap(temp);
 
-        sprintf( temp, "./image/char_atk%d.png", i );
+        sprintf( temp, "./image/%dchar_atk%d.png",choose_num, i );
         chara.img_atk[i-1] =  al_load_bitmap(temp);
     }
+    sprintf(temp,"./image/%dchar_stop.png",choose_num);
+    chara.img_stop[0]=al_load_bitmap(temp);
 
     // initial the geometric information of character
     chara.width = WIDTH/11;
@@ -188,9 +191,10 @@ void bullet_init(){
 
     // load chara bullet's picture
     for(int i=1;i<=27;i++){
-        sprintf( temp, "./image/bu%d.png",1);
+        sprintf( temp, "./image/%dbu%d.png",choose_num,1);
         bu_m[i].img_b[0] = al_load_bitmap(temp);
-        bu_m[i].img_b[1]=al_load_bitmap("./image/rotated_bu.png");
+        sprintf( temp, "./image/%drotated_bu.png",choose_num);
+        bu_m[i].img_b[1]=al_load_bitmap(temp);
         bu_m[i].width = WIDTH/20;
         bu_m[i].height = HEIGHT/20;
         bu_m[i].x = chara.x;
@@ -752,9 +756,9 @@ void object_draw(){                                                           //
     // with the state, draw corresponding image
     if( chara.state == STOP ){
         if( chara.dir )
-            draw_bitmap(chara.img_move[0],chara.x, chara.y,chara.width,chara.height,0);
+            draw_bitmap(chara.img_stop[0],chara.x, chara.y,chara.width,chara.height,0);
         else
-            draw_bitmap(chara.img_move[0],chara.x, chara.y,chara.width,chara.height,ALLEGRO_FLIP_HORIZONTAL);
+            draw_bitmap(chara.img_stop[0],chara.x, chara.y,chara.width,chara.height,ALLEGRO_FLIP_HORIZONTAL);
     }else if( chara.state == MOVE ){
         if( chara.dir ){
             if( chara.anime < chara.anime_time/2 ){
@@ -772,16 +776,15 @@ void object_draw(){                                                           //
     }else if( chara.state == ATK ){
         if( chara.dir ){
             if( chara.anime < chara.anime_time/2 ){
-                draw_bitmap(chara.img_move[0],chara.x, chara.y,chara.width,chara.height,0);
+                draw_bitmap(chara.img_atk[0],chara.x, chara.y,chara.width,chara.height,0);
             }else{
-               draw_bitmap(chara.img_move[1],chara.x, chara.y,chara.width,chara.height,0);
-
+               draw_bitmap(chara.img_atk[0],chara.x, chara.y,chara.width,chara.height,0);
             }
         }else{
             if( chara.anime < chara.anime_time/2 ){
-                draw_bitmap(chara.img_move[0],chara.x, chara.y,chara.width,chara.height,ALLEGRO_FLIP_HORIZONTAL);
+                draw_bitmap(chara.img_atk[0],chara.x, chara.y,chara.width,chara.height,ALLEGRO_FLIP_HORIZONTAL);
             }else{
-                 draw_bitmap(chara.img_move[0],chara.x, chara.y,chara.width,chara.height,ALLEGRO_FLIP_HORIZONTAL);
+                 draw_bitmap(chara.img_atk[0],chara.x, chara.y,chara.width,chara.height,ALLEGRO_FLIP_HORIZONTAL);
 
             }
         }

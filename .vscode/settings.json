@@ -5,6 +5,8 @@
         "complex": "cpp",
         "iterator": "cpp",
         "random": "cpp",
-        "ios": "cpp"
+        "ios": "cpp",
+        "locale": "cpp",
+        "string": "cpp"
     }
 }

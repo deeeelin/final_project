@@ -56,7 +56,7 @@ bullet bu_m[28]={0},bu_e[11]={0};
 // define tools
 tool tl[11]={0};
 
-int count2=-1,count1=0;
+int count2=-1,count1=0,prev_key=0,count3=-1;
 ALLEGRO_SAMPLE *sample = NULL;
 
 
@@ -609,31 +609,43 @@ void object_moving(){
 }
 
 void interpreting_keys(){
-
+    if(!( key_state[ALLEGRO_KEY_W] || key_state[ALLEGRO_KEY_S] || key_state[ALLEGRO_KEY_A] || key_state[ALLEGRO_KEY_D])){
+        if(count3==-1) count3=0;
+        else count3++;
+        if(count3==20){
+            chara.state=STOP;
+            count3=-1;
+        }
+    }
     if( key_state[ALLEGRO_KEY_W] ){
         if(chara.y>-30+chara.height/2+10)
         chara.y -= 5;
-        
-         chara.state = MOVE;
+        count3=-1;
+        chara.state = MOVE;
+         
     }
     else if( key_state[ALLEGRO_KEY_S] ){
         if(chara.y<(HEIGHT-30-chara.height/2))
         chara.y += 5;
-        
+        count3=-1;
          chara.state = MOVE;
+         
     }
     if( key_state[ALLEGRO_KEY_A] ){
         chara.dir = false;
         //chara.x -= 5;
         chara.state = STOP;
+       count3=-1;
     }
     else if( key_state[ALLEGRO_KEY_D] ){
         chara.dir = true;
         //chara.x += 5;
         chara.state = STOP;
+       count3=-1;
     }
 
     if( key_state[ALLEGRO_KEY_SPACE] ){
+        count3=-1;
         chara.state = ATK;
         bullet_active(); // if space is pressed ,then active a new bullet
 
@@ -686,13 +698,7 @@ void object_update()
     interpreting_keys();
 
     // about main charater's anime settings
-    if( chara.anime == chara.anime_time-1 ){
-        chara.anime = 0;
-        chara.state = STOP;
-    }
-    if ( chara.anime == 0 ){
-        chara.state = STOP;
-    }
+    
     return;
 
 }
@@ -804,11 +810,12 @@ void object_destroy(){ // destroy created objects
         al_destroy_bitmap(chara.img_atk[i]);
         al_destroy_bitmap(chara.img_move[i]);
     }
+    al_destroy_bitmap(chara.img_stop[0]);
     for(int i=1;i<=4;i++) al_destroy_bitmap(ene[i].img_move[0]);
 
     for(int i=1;i<=27;i++) al_destroy_bitmap(bu_m[i].img_b[0]);
 
-    for(int i=1;i<=5;i++) al_destroy_bitmap(bu_e[i].img_b[0]);
+    for(int i=1;i<=7;i++) al_destroy_bitmap(bu_e[i].img_b[0]);
 
     for(int i=1;i<=4;i++) al_destroy_bitmap(tl[i].img_t[0]);
 

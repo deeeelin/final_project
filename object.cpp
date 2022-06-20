@@ -2,6 +2,10 @@
 #include "scene.h"
 ALLEGRO_SAMPLE_INSTANCE *explode_Sound;
 ALLEGRO_SAMPLE *explode = NULL;
+ALLEGRO_SAMPLE_INSTANCE *bounceya_Sound;
+ALLEGRO_SAMPLE *bounceya = NULL;
+ALLEGRO_SAMPLE_INSTANCE *killene_Sound;
+ALLEGRO_SAMPLE *killene = NULL;
 
 typedef struct character
 {
@@ -91,13 +95,29 @@ void font_init(){
 }
 void been_shot_sound_init()
 {
-
-
     explode = al_load_sample("./sound/beenshot.wav");
 
     explode_Sound  = al_create_sample_instance(explode);
     al_set_sample_instance_playmode(explode_Sound, ALLEGRO_PLAYMODE_ONCE);
     al_attach_sample_instance_to_mixer(explode_Sound, al_get_default_mixer());
+}
+
+void kill_ene_sound_init()
+{
+    killene = al_load_sample("./sound/killene.wav");
+
+    killene_Sound  = al_create_sample_instance(killene);
+    al_set_sample_instance_playmode(killene_Sound, ALLEGRO_PLAYMODE_ONCE);
+    al_attach_sample_instance_to_mixer(killene_Sound, al_get_default_mixer());
+}
+
+void bounce_sound_init()
+{
+    bounceya= al_load_sample("./sound/bounce.wav");
+
+    bounceya_Sound  = al_create_sample_instance(bounceya);
+    al_set_sample_instance_playmode(bounceya_Sound, ALLEGRO_PLAYMODE_ONCE);
+    al_attach_sample_instance_to_mixer(bounceya_Sound, al_get_default_mixer());
 }
 
 
@@ -189,11 +209,16 @@ void ene_init(){
 void sound_init(){
 
     // load effective sound
-    sample = al_load_sample("./sound/atk_sound.wav");
+    char temp[50];
+    sprintf(temp,"./sound/%datk_sound.wav",choose_num);
+    sample = al_load_sample(temp);
     chara.atk_Sound  = al_create_sample_instance(sample);
     al_set_sample_instance_playmode(chara.atk_Sound, ALLEGRO_PLAYMODE_ONCE);
     al_attach_sample_instance_to_mixer(chara.atk_Sound, al_get_default_mixer());
     been_shot_sound_init();
+    kill_ene_sound_init();
+    bounce_sound_init();
+
     return ;
 }
 // initialize main character's bullets and enemy bullets
@@ -332,6 +357,7 @@ void shot_ene(){//determine whether the enemy has been shot
     for(int i=1;i<=5;i++){
         for(int j=1;j<=27;j++){
             if(abs( bu_m[j].x-bu_e[i].x)<20 && abs(bu_m[j].y-bu_e[i].y)<20 && bu_m[j].active==1 && bu_e[i].active==1){
+                    al_play_sample_instance(explode_Sound);
                     bu_m[j].active=0;
                     if(chara.dir) bu_e[i].x =WIDTH-1;
                     else bu_e[i].x = 0+1;
@@ -346,6 +372,7 @@ void shot_ene(){//determine whether the enemy has been shot
 
             if(abs( bu_m[j].x-ene[i].x)<20 && abs(bu_m[j].y-ene[i].y)<25 && bu_m[j].active==1 && ene[i].active==1)
             {
+                al_play_sample_instance(killene_Sound);
                 if(count1-ti_me>0){
                     if(ene[i].hp>1)ene[i].hp-=2;
                     else ene[i].hp--;
@@ -441,6 +468,7 @@ void bounce(){
     for(int i=1;i<=5;i++){
         if(abs(tl[2].x-bu_e[i].x)<50&&abs(tl[2].y-bu_e[i].y)<70&& tl[2].active==1)
         {
+            al_play_sample_instance(bounceya_Sound);
             tl[2].active=0;
             bu_e[i].dir=!(bu_e[i].dir);
         }
@@ -477,6 +505,7 @@ void bullet_active(){ // show new bullet
 
 void ene_bullet_active(int next){
     if(next==1){
+        num_of_enemy=4;
         for(int i=1;i<=4;i++){
             ene[i].active=1; // when scene upgrade let the hidden enemy be shown,and start to move
             ene[i].hp=ene[i].hp_full;
@@ -700,7 +729,7 @@ void object_update()
 
     //when scene==5 will change background and let hp back to full
 
-    if(sc>5&&next==0){next++;ene_bullet_active(next);}//sc is the score，sc>5 will have two more enemies
+    if(num_of_enemy==2&&next==0){next++;ene_bullet_active(next);}//sc is the score，sc>5 will have two more enemies
 
     // update the movement of things (except the main character)
     object_moving();
@@ -833,6 +862,10 @@ void object_destroy(){ // destroy created objects
     al_destroy_sample_instance(chara.atk_Sound);
 
      al_destroy_sample_instance(explode_Sound);
+
+     al_destroy_sample_instance(killene_Sound);
+
+     al_destroy_sample_instance(bounceya_Sound);
 
     return ;
 

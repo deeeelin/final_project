@@ -227,7 +227,7 @@ int game_scene_draw(){
           }
 
     }
-    else if(sc>=10)
+    else if(num_of_enemy==0 && next==1)
     {
         t=2;
          al_draw_scaled_bitmap(win,0, 0,al_get_bitmap_width(win),al_get_bitmap_height(win),0, 0,WIDTH,HEIGHT,0);
@@ -238,13 +238,13 @@ int game_scene_draw(){
          }
 
     }
-    else if(sc<5)
+    else if(num_of_enemy>0 && next==0)
     {
         al_draw_scaled_bitmap(game_background,0, 0,al_get_bitmap_width(game_background),al_get_bitmap_height(game_background),0, 0,WIDTH,HEIGHT,0);
         object_draw();
 
     }
-    else
+    else if(num_of_enemy>0 && next==1)
     {
         al_draw_scaled_bitmap(game_background_2,0, 0,al_get_bitmap_width(game_background_2),al_get_bitmap_height(game_background_2),0, 0,WIDTH,HEIGHT,0);
         object_draw();

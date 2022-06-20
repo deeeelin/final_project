@@ -505,7 +505,6 @@ void bullet_active(){ // show new bullet
 
 void ene_bullet_active(int next){
     if(next==1){
-        num_of_enemy=4;
         for(int i=1;i<=4;i++){
             ene[i].active=1; // when scene upgrade let the hidden enemy be shown,and start to move
             ene[i].hp=ene[i].hp_full;
@@ -729,7 +728,7 @@ void object_update()
 
     //when scene==5 will change background and let hp back to full
 
-    if(num_of_enemy==2&&next==0){next++;ene_bullet_active(next);}//sc is the score，sc>5 will have two more enemies
+    if(num_of_enemy==4&&next==0){next++;ene_bullet_active(next);}//sc is the score，sc>5 will have two more enemies
 
     // update the movement of things (except the main character)
     object_moving();

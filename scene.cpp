@@ -141,7 +141,7 @@ void re_game_process(int bg){
         al_draw_textf(font,al_map_rgb_f(255,0,0),140, 140,0,"your score: %d",sc);
         al_draw_textf(font,al_map_rgb_f(255,0,0),140, 180,0,"recent highest score: %d",max_score);
         al_draw_textf(font,al_map_rgb_f(255,0,0),140, 220,0,"game time: %d",ti_me);
-        al_draw_textf(font,al_map_rgb_f(255,0,0),140, 260,0,"enemy killed: %d",4-num_of_enemy);
+        al_draw_textf(font,al_map_rgb_f(255,0,0),140, 260,0,"enemy killed: %d",6-num_of_enemy);
 
 
 
